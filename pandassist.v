@@ -1,15 +1,34 @@
 module main
 
 import crypto.bcrypt
+import os
+import term
+import toml
 import time
 import vweb
 import x.json2
+
+const default_conf = 
+'
+port = 80
+
+[mysql]
+dbname = "pandassist"
+host = "127.0.0.1"
+port = 3306
+username = ""
+password = ""
+'
+
+const(
+	const_config_path = './config.toml'
+)
 
 // first 4 digits of error number refer to the category of error.
 const(
 	const_errno_password_hash_fail = 00010001
 	const_err_msg = {
-		001001: 'Failed to cryptographically hash the provided password. Please contact support if you see this message.'
+		00010001: 'Failed to cryptographically hash the provided password. Please contact support if you see this message.'
 	}
 )
 
@@ -25,6 +44,8 @@ struct JsonResult {
 
 struct App {
 	vweb.Context
+pub mut:
+	config toml.Doc
 }
 
 // login serves the HTML page where the end user is prompted to
@@ -76,7 +97,7 @@ fn (mut app App) handle_login() vweb.Result {
 					code: const_errno_password_hash_fail
 				})
 			}
-			register_user(app.form) or {
+			app.register_user(app.form) or {
 				return app.json(JsonResult{
 					error: true,
 					message: err.msg
@@ -95,8 +116,8 @@ fn (mut app App) handle_login() vweb.Result {
 // register_user validates the fields provided by a POST request form.
 // It then submits the provided information into a database.
 // NOTE: I have not finished this function yet.
-fn register_user(form map[string]string) ? {
-	mut conn := new_connection()
+fn (app App) register_user(form map[string]string) ? {
+	mut conn := new_connection(app.config)
 	conn.connect()?
 	defer {
 		conn.close()
@@ -113,10 +134,24 @@ fn register_user(form map[string]string) ? {
 	}
 }
 
+fn println_error(str string) {
+	println(term.rgb(230, 20, 70, 'Error: ') + str)
+}
+
 fn main() {
 	mut app := App{}
+	if !os.exists(const_config_path) {
+		os.write_file(const_config_path, default_conf) or {
+			println_error('Failed to create config.toml.')
+		}
+	}
+	app.config = toml.parse_file('./config.toml') or {
+		println(err.msg)
+		// println_error('No config.toml file found. A default should be created on start. Please check that this program has read/write persmissions.')
+		exit(1)
+	}
 	
 	app.mount_static_folder_at('./assets', '/assets')
 	
-	vweb.run(app, 8080)
+	vweb.run(app, app.config.value('port').default_to(8080).int())
 }
