@@ -1,6 +1,7 @@
 module main
 
 import mysql
+import term
 import toml
 
 const(
@@ -16,12 +17,14 @@ const(
 )
 
 fn new_connection(config toml.Doc) mysql.Connection {
-	mut conn := mysql.Connection{
+	println(term.rgb(0, 255, 0, 'in db.v > fn new_connection(...): ' + config.str()))
+	conn := mysql.Connection{
 		dbname: config.value('mysql.dbname').default_to('panda').string()
 		host: config.value('mysql.host').default_to('127.0.0.1').string()
 		port: u32(config.value('mysql.port').default_to(3306).int())
 		username: config.value('mysql.username').string()
 		password: config.value('mysql.password').string()
 	}
+	
 	return conn
 }

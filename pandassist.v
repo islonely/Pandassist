@@ -48,10 +48,15 @@ pub mut:
 	config toml.Doc
 }
 
+pub fn (mut app App) init_server() {
+	println(term.rgb(255, 128, 0, app.config.str()))
+}
+
 // login serves the HTML page where the end user is prompted to
 // either login or sign up for an account.
 ['/login']
 fn (mut app App) login() vweb.Result {
+	println(term.rgb(255, 128, 0, 'on "localhost/login": ' + app.config.str()))
 	return $vweb.html()
 }
 
@@ -83,6 +88,7 @@ fn calc_ideal_bcrypt_cost() int {
 // the login page.
 ['/login'; post]
 fn (mut app App) handle_login() vweb.Result {
+	println(term.rgb(255, 255, 0, 'on post "localhost/login": ' + app.config.str()))
 	match app.form['action'] {
 		'login' {
 		// future proof bcrypt passwords by updating the hashed password
@@ -134,6 +140,8 @@ fn (app App) register_user(form map[string]string) ? {
 	}
 }
 
+// println_error prints provided text to the terminal with
+// "Error: " prefixed in red text.
 fn println_error(str string) {
 	println(term.rgb(230, 20, 70, 'Error: ') + str)
 }
@@ -150,6 +158,8 @@ fn main() {
 		// println_error('No config.toml file found. A default should be created on start. Please check that this program has read/write persmissions.')
 		exit(1)
 	}
+	
+	println(term.rgb(255, 0, 0, 'in main; before vweb.run(...) is invoked: ' + app.config.str()))
 	
 	app.mount_static_folder_at('./assets', '/assets')
 	
