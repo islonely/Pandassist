@@ -1,167 +1,152 @@
 module main
 
 import crypto.bcrypt
-import os
-import term
-import toml
+import mysql
+import nedpals.vex.ctx
+import nedpals.vex.router
+import nedpals.vex.server
+import json
 import time
-import vweb
-import x.json2
+import toml
 
-const default_conf = 
-'
-port = 80
-
-[mysql]
-dbname = "pandassist"
-host = "127.0.0.1"
-port = 3306
-username = ""
-password = ""
-'
-
-const(
-	const_config_path = './config.toml'
-)
-
-// first 4 digits of error number refer to the category of error.
-const(
-	const_errno_password_hash_fail = 00010001
-	const_err_msg = {
-		00010001: 'Failed to cryptographically hash the provided password. Please contact support if you see this message.'
-	}
-)
-
-type Any = json2.Null | []Any | bool | f64 | map[string]Any | string
-
-// JsonResult will be encoded as {"error":false,"message":"error message","code":0,"data":{}}
-struct JsonResult {
-	error bool
-	message string
-	code int
-	data map[string]Any
-}
-
+// App is an extension of Router from the nedpals.vex module.
 struct App {
-	vweb.Context
-pub mut:
+mut:
 	config toml.Doc
+	dbconn mysql.Connection
 }
 
-pub fn (mut app App) init_server() {
-	println(term.rgb(255, 128, 0, app.config.str()))
+// fn (mut app App) route(method router.Method, path string, func fn(&ctx.Req, mut ctx.Resp)) {
+// 	app.router.route(method, path, func)
+// }
+
+// JsonResponse is the the response sent back upon post request.
+// Mainly to send back to a jQuery $.ajax request.
+struct JsonResponse {
+	message string
+	error bool
 }
 
-// login serves the HTML page where the end user is prompted to
-// either login or sign up for an account.
-['/login']
-fn (mut app App) login() vweb.Result {
-	println(term.rgb(255, 128, 0, 'on "localhost/login": ' + app.config.str()))
-	return $vweb.html()
+// str returns JsonResponse as a JSON encoded string.
+fn (jr JsonResponse) str() string {
+	return json.encode(jr)
 }
 
-// calc_ideal_bcrypt_cost automatically determines what the optimal cost for the
-// bcrypt algorithm should be. This scales with hardware. So as processors get more
-// efficient, the higher the return integer will be.
-fn calc_ideal_bcrypt_cost() int {
-	mut cost := 8
-	mut sw := time.new_stopwatch()
-	sw.start()
-	hash := bcrypt.generate_from_password('microbenchmark'.bytes(), cost) or {''}
-	sw.stop()
-	mut duration_ms := sw.elapsed().milliseconds()
+fn main() {
+	mut app := App{
+		config: parse_toml(const_config_path)   // see io.v
+	}
+	app.dbconn = new_connection(app.config) // see db.v
 	
-	if hash == '' { return 0 }
-	for duration_ms < 250 {
-		cost++
-		duration_ms *= 2
+	// serves files in the assets directory on the specified path
+	route_assets :=  fn (req &ctx.Req, mut res ctx.Resp) {
+		res.send_file('./assets/' + req.params['path'], 200)
 	}
-	// for security purposes you should never use cost lower than default
-	// regardless of what is generated
-	if cost < bcrypt.default_cost {
-		cost = bcrypt.default_cost
+	
+	// route_login serves the login page to the end user
+	route_login := fn (req &ctx.Req, mut res ctx.Resp) {
+		res.send_file('./html/login.html', 200)
 	}
-	return cost
+	
+	// route_login_post handles post request made to the login
+	// route. This will either be a request to login or to
+	// register a new user.
+	route_login_post := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+		mut data := req.parse_form() or {
+			res.send_json(JsonResponse{
+				error: true
+				message: 'Failed to parse form data: $err.msg'
+			}, 200)
+			return
+		}
+		
+		match data['action'] {
+			'login' {
+				// Future proof bcrypt password by updating the hashed
+				// password if the user submits correct password.
+			}
+			'register' {
+				data['password'] = bcrypt.generate_from_password(data['password'].bytes(), calc_ideal_bcrypt_cost()) or {
+					res.send_json(JsonResponse{
+						error: true
+						message: 'Failed to hash password.'
+					}, 200)
+					return
+				}
+				
+				register_user(mut app.dbconn, data) or {
+					res.send_json(JsonResponse{
+						error: true
+						message: 'Failed to insert new user into database: $err.msg'
+					}, 200)
+					return
+				}
+				
+				res.send_json(JsonResponse{
+					message: 'Successfully registered user.'
+				}, 200)
+				return
+			}
+			else {
+				res.send_json(JsonResponse{
+					error: true
+					message: 'Unknown action "' + data['action'] + '" requested.'
+				}, 200)
+			}
+		}
+	}
+	
+	mut router := router.new()
+	router.route(.get, '/assets/*path', route_assets)
+	router.route(.get, '/login', route_login)
+	router.route(.post, '/login', route_login_post)
+	
+	server.serve(router, app.config.value('port').default_to('8080').int())
 }
 
-// handle_login decides what should happen upon a post request to
-// the login page.
-['/login'; post]
-fn (mut app App) handle_login() vweb.Result {
-	println(term.rgb(255, 255, 0, 'on post "localhost/login": ' + app.config.str()))
-	match app.form['action'] {
-		'login' {
-		// future proof bcrypt passwords by updating the hashed password
-		// if the user submits correct password.
-		}
-		'register' {
-			hashed := bcrypt.generate_from_password(app.form['password'].bytes(), calc_ideal_bcrypt_cost()) or {''}
-			if hashed == '' {
-				return app.json(JsonResult{
-					error: true,
-					message: const_err_msg[const_errno_password_hash_fail],
-					code: const_errno_password_hash_fail
-				})
-			}
-			app.register_user(app.form) or {
-				return app.json(JsonResult{
-					error: true,
-					message: err.msg
-					code: err.code
-				})
-			}
-			return app.json(JsonResult{
-				message: 'Successfully created user!'
-			})
-		}
-		else {}
-	}
-	return app.redirect('/login')
-}
-
-// register_user validates the fields provided by a POST request form.
-// It then submits the provided information into a database.
-// NOTE: I have not finished this function yet.
-fn (app App) register_user(form map[string]string) ? {
-	mut conn := new_connection(app.config)
+// register_user validates the fields provided in `data`. If
+// everything checks out, then user information is inserted
+// into database.
+fn register_user(mut conn mysql.Connection, data map[string]string) ? {
 	conn.connect()?
-	defer {
-		conn.close()
+	defer { conn.close() }
+	
+	// see db.v for values of const's
+	if data['username'].len > const_mysql_username_max_len {
+		return const_mysql_error_username_gt_max
 	}
-	query_username_taken := 'SELECT * FROM teachers WHERE username=\'' + form['username'] + '\';'
-	query_email_taken := 'SELECT * FROM teachers WHERE email=\'' + form['email'] + '\';'
+	if data['name'].len > const_mysql_name_max_len {
+		return const_mysql_error_name_gt_max
+	}
+	if data['email'].len > const_mysql_email_max_len {
+		return const_mysql_error_email_gt_max
+	}
+	if data['password'].len > const_mysql_password_max_len {
+		return const_mysql_error_password_gt_max
+	}
+	if data['phone'].len > const_mysql_phone_max_len {
+		return const_mysql_error_phone_gt_max
+	}
+	
+	// Check if username is taken. Two people cannot possibly
+	// be in possession of the same username.
+	query_username_taken := 'SELECT * FROM teachers WHERE username=\'' + data['username'] + '\';'
 	result_username_taken := conn.query(query_username_taken)?
 	if result_username_taken.n_rows() > 0 {
 		return const_mysql_error_username_taken
 	}
+	
+	// Check if email is taken.
+	query_email_taken := 'SELECT * FROM teachers WHERE email=\'' + data['email'] + '\';'
 	result_email_taken := conn.query(query_email_taken)?
 	if result_email_taken.n_rows() > 0 {
 		return const_mysql_error_email_taken
 	}
-}
-
-// println_error prints provided text to the terminal with
-// "Error: " prefixed in red text.
-fn println_error(str string) {
-	println(term.rgb(230, 20, 70, 'Error: ') + str)
-}
-
-fn main() {
-	mut app := App{}
-	if !os.exists(const_config_path) {
-		os.write_file(const_config_path, default_conf) or {
-			println_error('Failed to create config.toml.')
-		}
+	
+	account_birth := time.sys_mono_now()
+	query_insert := 'INSERT INTO teachers (username, full_name, email, password, account_birth) VALUES (\'' + data['username'] + '\', \'' + data['name'] + '\', \'' + data['email'] + '\', \'' + data['password'] + '\', ' + account_birth.str() + ');'
+	result_insert := conn.query(query_insert)?
+	if conn.affected_rows() == 0 {
+		return error('Failed to insert user into database. ' + result_insert.str())
 	}
-	app.config = toml.parse_file('./config.toml') or {
-		println(err.msg)
-		// println_error('No config.toml file found. A default should be created on start. Please check that this program has read/write persmissions.')
-		exit(1)
-	}
-	
-	println(term.rgb(255, 0, 0, 'in main; before vweb.run(...) is invoked: ' + app.config.str()))
-	
-	app.mount_static_folder_at('./assets', '/assets')
-	
-	vweb.run(app, app.config.value('port').default_to(8080).int())
 }

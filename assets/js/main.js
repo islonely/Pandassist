@@ -71,13 +71,14 @@ $(document).ready(function() {
             url: '/login',
             method: 'post',
             dataType: 'json',
-            data: {
+            contentType: 'application/json',
+            data: JSON.stringify({
                 action: 'register',
                 username: $username.val().trim(),
                 name: $name.val().trim(),
                 email: $email.val().trim(),
                 password: $password.val()
-            },
+            }),
             
             success: function(response) {
                 console.log(response)
