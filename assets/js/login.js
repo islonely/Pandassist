@@ -33,6 +33,38 @@ $(document).ready(function() {
         return true
     }
 
+    $('form#loginForm').on('submit', function(evt) {
+        evt.preventDefault()
+        let $email = $(this).find('#email')
+        let $password = $(this).find('#password')
+        
+        $.ajax({
+            url: '/login',
+            method: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                action: 'login',
+                email: $email.val().trim(),
+                password: $password.val()
+            }),
+            
+            success: function(response) {
+                if (!response.error) {
+                    if (response.message == 'Incorrect username or password.') {
+                        // TODO: handle bad email or password
+                    } else {
+                        window.location.replace('/dashboard')
+                    }
+                }
+            },
+            
+            error: function(response) {
+                console.error(response)
+            }
+        })
+    })
+
     $('form#registerForm').on('submit', function(evt) {
         evt.preventDefault()
         let $submitBttn = $(this).find('button')
@@ -81,7 +113,9 @@ $(document).ready(function() {
             }),
             
             success: function(response) {
-                console.log(response)
+                if (!response.error) {
+                    window.location.replace('/dashboard')
+                }
             },
             
             error: function(response) {

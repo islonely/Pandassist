@@ -21,3 +21,7 @@
 .text-manjari {
     font-family: Manjari, sans-serif;
 }
+
+.rotate-45 {
+    transform: rotate(45deg);
+}

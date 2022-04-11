@@ -1,11 +1,13 @@
 module main
 
 import crypto.bcrypt
+import json
 import mysql
 import nedpals.vex.ctx
 import nedpals.vex.router
 import nedpals.vex.server
-import json
+import nedpals.vex.session as vexses
+import os
 import time
 import toml
 
@@ -15,10 +17,6 @@ mut:
 	config toml.Doc
 	dbconn mysql.Connection
 }
-
-// fn (mut app App) route(method router.Method, path string, func fn(&ctx.Req, mut ctx.Resp)) {
-// 	app.router.route(method, path, func)
-// }
 
 // JsonResponse is the the response sent back upon post request.
 // Mainly to send back to a jQuery $.ajax request.
@@ -34,17 +32,41 @@ fn (jr JsonResponse) str() string {
 
 fn main() {
 	mut app := App{
-		config: parse_toml(const_config_path)   // see io.v
+		config: parse_toml(const_config_path)
 	}
-	app.dbconn = new_connection(app.config) // see db.v
+	app.dbconn = new_connection(app.config)
 	
 	// serves files in the assets directory on the specified path
-	route_assets :=  fn (req &ctx.Req, mut res ctx.Resp) {
+	route_assets := fn (req &ctx.Req, mut res ctx.Resp) {
 		res.send_file('./assets/' + req.params['path'], 200)
 	}
 	
+	route_dashboard := fn (req &ctx.Req, mut res ctx.Resp) {
+		mut session := vexses.start(req, mut res, secure: true)
+		if session.is_empty() {
+			res.redirect('/login')
+			return
+		}
+		
+		mut dashboard_html := os.read_file('./html/dashboard.html') or {
+			res.send('Internal Server Error', 500)
+			return
+		}
+		insert_header_at := dashboard_html.index('<!--vex-insert-navbar-->') or {-1}
+		if insert_header_at >= 0 {
+			dashboard_html = dashboard_html[0..insert_header_at] + header_html.html() + dashboard_html[insert_header_at..dashboard_html.len]
+		}
+		
+		res.send_html(dashboard_html, 200)
+	}
+	
 	// route_login serves the login page to the end user
-	route_login := fn (req &ctx.Req, mut res ctx.Resp) {
+	route_login := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+		session := vexses.start(req, mut res, secure: true)
+		if session.get('logged_in').bool() {
+			res.redirect('/dashboard')
+			return
+		}
 		res.send_file('./html/login.html', 200)
 	}
 	
@@ -60,10 +82,75 @@ fn main() {
 			return
 		}
 		
+		mut session := vexses.start(req, mut res, secure: true)
+		
 		match data['action'] {
 			'login' {
-				// Future proof bcrypt password by updating the hashed
-				// password if the user submits correct password.
+				app.dbconn.connect() or {
+					res.send_json(JsonResponse{
+						error: true
+						message: 'Failed to connect to database. $err.msg'
+					}, 200)
+					return
+				}
+				defer { app.dbconn.close() }
+				
+				query_hashword := 'SELECT password FROM teachers WHERE email=\'' + data['email'] + '\';'
+				result_hashword := app.dbconn.query(query_hashword) or {
+					res.send_json(JsonResponse{
+						error: true
+						message: 'Failed to query database. $err.msg'
+					}, 200)
+					return
+				}
+				
+				// no user in database with provided email.
+				if result_hashword.n_rows() == 0 {
+					res.send_json(JsonResponse{
+						error: false
+						message: 'Incorrect username or password.'
+					}, 200)
+					return
+				}
+				
+				hashword := result_hashword.maps()[0]['password']
+				bcrypt.compare_hash_and_password(data['password'].bytes(), hashword.bytes()) or {
+					res.send_json(JsonResponse{
+						error: false
+						message: 'Incorrect username or password.'
+					}, 200)
+					return
+				}
+				
+				new_hashword := bcrypt.generate_from_password(data['password'].bytes(), calc_ideal_bcrypt_cost()) or {
+					res.send_json(JsonResponse{
+						error: false
+						message: 'Notice: Failed to hash new password.'
+					}, 200)
+					return
+				}
+				query_update_password := 'UPDATE teachers SET password=\'' + new_hashword + '\' WHERE email=\'' + data['email'] + '\';'
+				app.dbconn.query(query_update_password) or {
+					res.send_json(JsonResponse {
+						error: false
+						message: 'Notice: Failed to insert new password hash.'
+					}, 200)
+					return
+				}
+				
+				if app.dbconn.affected_rows() == 0 {
+					res.send_json(JsonResponse {
+						error: false
+						message: 'Notice: Failed to insert new password hash.'
+					}, 200)
+					return
+				}
+				
+				session.set_many('logged_in', 'true', 'email', data['email']) or {}
+				res.send_json(JsonResponse{
+					error: false
+					message: 'Successfully logged in.'
+				}, 200)
 			}
 			'register' {
 				data['password'] = bcrypt.generate_from_password(data['password'].bytes(), calc_ideal_bcrypt_cost()) or {
@@ -82,10 +169,10 @@ fn main() {
 					return
 				}
 				
+				session.set_many('logged_in', 'true', 'email', data['email']) or {}
 				res.send_json(JsonResponse{
 					message: 'Successfully registered user.'
 				}, 200)
-				return
 			}
 			else {
 				res.send_json(JsonResponse{
@@ -98,6 +185,7 @@ fn main() {
 	
 	mut router := router.new()
 	router.route(.get, '/assets/*path', route_assets)
+	router.route(.get, '/dashboard', route_dashboard)
 	router.route(.get, '/login', route_login)
 	router.route(.post, '/login', route_login_post)
 	
