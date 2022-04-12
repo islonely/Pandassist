@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Manjari&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
 
 @font-face {
     font-family: Manjari;
@@ -18,10 +20,54 @@
     src: url('/assets/fonts/Manjari/Manjari-Thin.ttf');
 }
 
+.student {
+    transition: all 60ms;
+    cursor: pointer;
+    padding: 0.375rem 0.4rem;
+    font: 1.1rem Quicksand;
+    color: #464646;
+    user-select: none;
+}
+
+.student:not(:last-child) {
+    border-bottom: 2px solid #bbb8;
+}
+
+.student:active {
+    box-shadow: #a8b7cead 0px 0px 10px inset;
+}
+
+.student:hover {
+    background: #c8daf5ad !important;
+}
+
+#studentAddMenu {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    
+}
+
+#mainContainer > * {
+    margin: 0 1rem;
+}
+
 .text-manjari {
-    font-family: Manjari, sans-serif;
+    font-family: Manjari, Arial, Helvetica, sans-serif
+}
+
+.text-josefin {
+    font-family: 'Josefin Sans', Arial, Helvetica, sans-serif;
+}
+
+.text-quicksand {
+    font-family: Quicksand, Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .rotate-45 {
     transform: rotate(45deg);
+}
+
+.rotate-135 {
+    transform: rotate(135deg);
 }
