@@ -20,6 +20,22 @@
     src: url('/assets/fonts/Manjari/Manjari-Thin.ttf');
 }
 
+@keyframes toastIn {
+    from { bottom: 0; opacity: 0; }
+    to { bottom: 20px; opacity: 1; }
+}
+
+@keyframes toastOut {
+    from { bottom: 20px; opacity: 1; }
+    to { bottom: 0; opacity: 0; }
+}
+
+.toast {
+    visibility: visible !important;
+    bottom: 20px;
+    animation: toastIn 0.3s, toastOut 0.3s 3s;
+}
+
 .student {
     transition: all 60ms;
     cursor: pointer;
@@ -45,7 +61,6 @@
     position: absolute;
     right: 0px;
     top: 0px;
-    
 }
 
 #mainContainer > * {

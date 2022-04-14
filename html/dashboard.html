@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="/assets/css/main.css">
         <script src="/assets/js/tailwindcss.js"></script>
         <script src="/assets/js/jquery-3.6.0.min.js"></script>
-        <script src="/assets/js/dashboard.js" defer></script>
+        <script src="/assets/js/dashboard.js"></script>
     </head>
     <body>
         <!--vex-insert-navbar-->
@@ -16,81 +16,75 @@
         <div id="mainContainer" class="container w-max mx-auto flex items-start">
             <div class="rounded-lg shadow-lg bg-white max-w-md w-72">
                 <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg">
+                    <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg" onclick="event.stopPropagation(); $('#newEventPopup').fadeIn(60);">
                     <h2 style="font-size: 1.35rem; letter-spacing: -0.075rem;">Events</h2>
                 </header>
             </div>
 
             <div class="rounded-lg shadow-lg bg-white max-w-md w-72 relative">
                 <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg">
+                    <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg">
                     <h2 style="font-size: 1.35rem; letter-spacing: -0.075rem;">Students</h2>
                 </header>
                 <div>
                     <div class="student flex items-center">
-                        <img src="/assets/img/profile-default.png" class="rounded-full h-12 pr-1">
+                        <img src="/assets/img/profile-default-male.png" class="rounded-full h-12 pr-1">
+                        <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Adam Oates</h5>
+                    </div>
+                    <div class="student flex items-center">
+                        <img src="/assets/img/profile-default-male.png" class="rounded-full h-12 pr-1">
+                        <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Nathan Oates</h5>
+                    </div>
+                    <div class="student flex items-center">
+                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
                         <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Apryl Oates</h5>
                     </div>
                     <div class="student flex items-center">
-                        <img src="/assets/img/profile-default.png" class="rounded-full h-12 pr-1">
+                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
                         <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Aspen Oates</h5>
                     </div>
                     <div class="student flex items-center">
-                        <img src="/assets/img/profile-default.png" class="rounded-full h-12 pr-1">
+                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
                         <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Lily Oates</h5>
                     </div>
                     <div class="student flex items-center">
-                        <img src="/assets/img/profile-default.png" class="rounded-full h-12 pr-1">
+                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
                         <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Ryleigh Oates</h5>
                     </div>
                     <div class="student flex items-center">
-                        <img src="/assets/img/profile-default.png" class="rounded-full h-12 pr-1">
+                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
                         <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Sierra Oates</h5>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- <div id="addMenu" class="fixed bottom-3 right-3 rounded-full cursor-pointer bg-gradient-to-tl from-emerald-400 to-emerald-300 w-max" style="width: 56px; transition: all 300ms;">
-            <img src="/assets/img/add.svg" style="height: 56px; transition: all 200ms ease-out; float: right; position: fixed; bottom: 10px; right: 10px;">
-            <ul class="menu hidden p-2" style="font-size: 1.17rem; color: #222;">
-                <li class="px-2 py-0.5 bg-transparent hover:opacity-80 hover:underline">Assignment</li>
-                <li class="px-2 py-0.5 bg-transparent hover:opacity-80 hover:underline">Event</li>
-                <li class="px-2 py-0.5 bg-transparent hover:opacity-80 hover:underline">Student</li>
-            </ul>
+        <div id="newEventPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md" style="width: 480px; left: 50%; margin-left: -240px; top: 30%;" onclick="event.stopPropagation();">
+            <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="$('#newEventPopup').fadeOut(60);">
+            <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Event</h2>
+            <div class="text-lg">
+                <div class="my-2">
+                    Description:
+                    <input id="eventDesc" class="w-3/4 text-base rounded px-2 py-1 bg-slate-100 hover:bg-slate-200" value="New Event" onclick="if (this.value == 'New Event') this.value=''" onfocusout="if (this.value === null || this.value.match(/^ *$/) !== null) this.value = 'New Event'">
+                </div>
+                <div class="my-2">
+                    Event Type:
+                    <select id="eventType" class="cursor-pointer text-base bg-slate-100 rounded pl-2 py-1 hover:bg-slate-200">
+                        <option value="fieldTrip">Field Trip</option>
+                        <option value="test">Test/Exam</option>
+                        <option value="addCategory">Add Category +</option>
+                    </select>
+                </div>
+                <div class="my-2">
+                    Date:
+                    <input id="eventDatetime" type="datetime-local" class="cursor-pointer text-base bg-slate-100 rounded px-2 py-1 hover:bg-slate-200">
+                </div>
+            </div>
+            <br>
+            <div class="mx-auto text-center">
+                <button id="eventCreateBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="createEvent()">Create</button>
+                <button id="eventCancelBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="$('#newEventPopup').fadeOut(60);">Cancel</button>
+            </div>
         </div>
-        <script>
-            let selectedStudents = []
-            function closeAddMenu() {
-                $('#addMenu').find('.menu').fadeOut(200)
-                setTimeout(() => {
-                    $('#addMenu').find('img').fadeIn(200)
-                    $('#addMenu').find('img').removeClass('rotate-135')
-                    $('#addMenu').find('img').css('bottom', '10px')
-                    $('#addMenu').css({
-                        borderRadius: '100%',
-                        width: '56px'
-                    })
-                }, 200)
-            }
-            
-            $(window).on('click', closeAddMenu)
-            
-            $('#addMenu').on('click', function(evt) {
-                evt.stopPropagation()
-                $(this).find('img').addClass('rotate-135')
-                $(this).find('img').css({
-                    bottom: '72px'
-                })
-                $(this).css({
-                    borderRadius: '10%',
-                    width: '180px'
-                })
-                
-                setTimeout(() => {
-                    $(this).find('.menu').fadeIn(100)
-                }, 200)
-            })
-        </script> -->
     </body>
 </html>

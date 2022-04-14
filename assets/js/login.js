@@ -1,43 +1,85 @@
 $(document).ready(function() {
 
-    $.extend(
-    {
-        redirectPost: function(location='#', args={})
-        {
-            var form = ''
-            $.each( args, function( key, value ) {
-                value = value.split('"').join('\"')
-                form += '<input type="hidden" name="'+key+'" value="'+value+'">'
-            })
-            $('<form action="' + location + '" method="POST">' + form + '</form>').appendTo($(document.body)).submit()
+    // $.extend(
+    // {
+    //     redirectPost: function(location='#', args={})
+    //     {
+    //         var form = ''
+    //         $.each( args, function( key, value ) {
+    //             value = value.split('"').join('\"')
+    //             form += '<input type="hidden" name="'+key+'" value="'+value+'">'
+    //         })
+    //         $('<form action="' + location + '" method="POST">' + form + '</form>').appendTo($(document.body)).submit()
+    //     }
+    // })
+
+    String.prototype.hasNumber = function() {
+        if (this === undefined) return false
+        return /\d/.test(this)
+    }
+
+    String.prototype.hasSymbol = function() {
+        if (this === undefined) return false
+        let symbols = Array.from('!@#$%^&*()_+-=~`{}[]:;\\|\'"?/,.<>')
+        let str = Array.from(this)
+        for (let i = 0; i < str.length; i++) {
+            if (symbols.includes(str[i])) {
+                return true
+            }
         }
-    })
+        return false
+    }
 
     function isEmailValid($email) {
+        // builtin email checker says empty string is okay?
+        if ($email.val() === '') {
+            showToast('Email cannot be empty.')
+            return false
+        }
         if ($email.prop('validity').valid) {
-            $email.removeClass('border-red-500')
-            $email.addClass('border-green-400')
             return true
         } else {
-            $email.removeClass('border-green-400')
-            $email.addClass('border-red-500')
+            showToast('Malformatted email provided.')
             return false
         }
     }
     
     function isPasswordValid(password) {
-        if (password.length < 12) {
+        if (password === '') {
+            showToast('Password cannot be empty.')
             return false
         }
-        // TODO: require more strict password requirements
+        if (password.length < 12) {
+            showToast('Password must be 12 character long.')
+            return false
+        }
+        
+        let hasSymbol = password.hasSymbol()
+        let hasNumber = password.hasNumber()
+        let eqTrim = password == password.trim()
+
+        if (!hasSymbol) {
+            showToast('Password must contain a special character.')
+            return false
+        }
+        if (!hasNumber) {
+            showToast('Password must contain a number.')
+            return false
+        }
+        if (!eqTrim) {
+            showToast('Password cannot start or end with whitespace.')
+            return false
+        }
+
         return true
     }
 
     $('form#loginForm').on('submit', function(evt) {
         evt.preventDefault()
-        let $email = $(this).find('#email')
-        let $password = $(this).find('#password')
-        
+        let $email = $(this).find('#emailLogin')
+        let $password = $(this).find('#passwordLogin')
+        let $rememberMe = $(this).find('#rememberMeLogin')
+
         $.ajax({
             url: '/login',
             method: 'post',
@@ -46,16 +88,19 @@ $(document).ready(function() {
             data: JSON.stringify({
                 action: 'login',
                 email: $email.val().trim(),
-                password: $password.val()
+                password: $password.val(),
+                remember_me: $rememberMe.is(':checked')
             }),
             
             success: function(response) {
                 if (!response.error) {
                     if (response.message == 'Incorrect username or password.') {
-                        // TODO: handle bad email or password
+                        showToast(response.message)
                     } else {
                         window.location.replace('/dashboard')
                     }
+                } else {
+                    showToast(response.message)
                 }
             },
             
@@ -67,8 +112,8 @@ $(document).ready(function() {
 
     $('form#registerForm').on('submit', function(evt) {
         evt.preventDefault()
-        let $submitBttn = $(this).find('button')
-        $submitBttn.prop('disabled', true)
+        // let $submitBttn = $(this).find('button')
+        // $submitBttn.prop('disabled', true)
         
         let $username = $(this).find('#username')
         let $name = $(this).find('#name')
@@ -84,18 +129,10 @@ $(document).ready(function() {
             let cont = confirm('Your name cannot start or end with whitespace. Automatically changing "' + $name.val() + '" to "' + $name.val().trim() + '". Is this alright?')
             if (!cont) return false
         }
-        let validEmail = isEmailValid($email)
-        if (!validEmail) {
-            alert('The email provided is invalid. Please format as someone@example.com.')
-            return false
-        }
-        let validPassword = isPasswordValid($password.val())
-        if (!validPassword) {
-            alert('The password provided is invalid. A password must be 12 characters long.')
-            return false
-        }
+        if (!isEmailValid($email)) return false
+        if (!isPasswordValid($password.val())) return false
         if ($password.val() != $confirmPassword.val()) {
-            alert('Password and Confirm Password fields do not match.')
+            showToast('Password and Confirm Password fields do not match.')
             return false
         }
         
