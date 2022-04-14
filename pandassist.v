@@ -77,7 +77,7 @@ fn main() {
 		mut data := req.parse_form() or {
 			res.send_json(JsonResponse{
 				error: true
-				message: 'Failed to parse form data: $err.msg'
+				message: 'Failed to parse form data: ${err.msg()}'
 			}, 200)
 			return
 		}
@@ -89,7 +89,7 @@ fn main() {
 				app.dbconn.connect() or {
 					res.send_json(JsonResponse{
 						error: true
-						message: 'Failed to connect to database. $err.msg'
+						message: 'Failed to connect to database. ${err.msg()}'
 					}, 200)
 					return
 				}
@@ -99,7 +99,7 @@ fn main() {
 				result_hashword := app.dbconn.query(query_hashword) or {
 					res.send_json(JsonResponse{
 						error: true
-						message: 'Failed to query database. $err.msg'
+						message: 'Failed to query database. ${err.msg()}'
 					}, 200)
 					return
 				}
@@ -164,7 +164,7 @@ fn main() {
 				register_user(mut app.dbconn, data) or {
 					res.send_json(JsonResponse{
 						error: true
-						message: 'Failed to insert new user into database: $err.msg'
+						message: 'Failed to insert new user into database: ${err.msg()}'
 					}, 200)
 					return
 				}
