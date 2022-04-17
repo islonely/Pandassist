@@ -1,24 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Manjari&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
-
-@font-face {
-    font-family: Manjari;
-    font-weight: normal;
-    src: url('/assets/fonts/Manjari/Manjari-Regular.ttf');
-}
-
-@font-face {
-    font-family: Manjari;
-    font-weight: bold;
-    src: url('/assets/fonts/Manjari/Manjari-Bold.ttf');
-}
-
-@font-face {
-    font-family: Manjari;
-    font-weight: 100,200,300;
-    src: url('/assets/fonts/Manjari/Manjari-Thin.ttf');
-}
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manjari:wght@100;400;700&display=swap');
 
 @keyframes toastIn {
     from { bottom: 0; opacity: 0; }
@@ -77,6 +60,7 @@
 
 .text-quicksand {
     font-family: Quicksand, Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: 600;
 }
 
 .rotate-45 {

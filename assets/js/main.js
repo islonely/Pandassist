@@ -14,3 +14,14 @@ function showToast(msg) {
         $toast.removeClass('toast')
     }, 3300)
 }
+
+function getSchoolYear() {
+    let d = new Date()
+    let y = d.getFullYear()
+    let m = d.getMonth()
+    if (m >= 7 /* August */) {
+        return y + '-' + (y+1)
+    } else {
+        return (y-1) + '-' + y
+    }
+}

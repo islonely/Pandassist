@@ -1,4 +1,6 @@
 $(document).ready(function() {
+    $('#studentYear').val(getSchoolYear())
+
     let selectedStudents = []
 
     $('.student').on('click', function(evt) {
@@ -11,9 +13,20 @@ $(document).ready(function() {
         $('.student').css({background: 'white'})
         selectedStudents = []
 
-        $('#newEventPopup').fadeOut(60)
+        closePopups()
     })
 })
+
+function closePopups(ignore=null) {
+    let popupIds = ['#newEventPopup', '#newStudentPopup']
+    if (ignore != null)
+        if (popupIds.indexOf(ignore) >= 0)
+            delete popupIds[popupIds.indexOf(ignore)]
+    popupIds.forEach(val => {
+        if (val !== undefined)
+            $(val).fadeOut(60)
+    })
+}
 
 function createEvent() {
     // TODO: handle event creations

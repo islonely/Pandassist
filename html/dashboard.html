@@ -5,62 +5,178 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashbaord - Pandassist</title>
         
-        <link rel="stylesheet" href="/assets/css/main.css">
-        <script src="/assets/js/tailwindcss.js"></script>
-        <script src="/assets/js/jquery-3.6.0.min.js"></script>
-        <script src="/assets/js/dashboard.js"></script>
+        <link rel="stylesheet" href="../assets/css/main.css">
+        <script src="../assets/js/tailwindcss.js"></script>
+        <script src="../assets/js/jquery-3.6.0.min.js"></script>
+        <script src="../assets/js/main.js"></script>
+        <script src="../assets/js/dashboard.js"></script>
     </head>
-    <body>
+    <body class="bg-slate-100">
         <!--vex-insert-navbar-->
-    
-        <div id="mainContainer" class="container w-max mx-auto flex items-start">
-            <div class="rounded-lg shadow-lg bg-white max-w-md w-72">
-                <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg" onclick="event.stopPropagation(); $('#newEventPopup').fadeIn(60);">
-                    <h2 style="font-size: 1.35rem; letter-spacing: -0.075rem;">Events</h2>
-                </header>
+        <nav class="bg-gray-800 text-quicksand mb-6" style="font-weight: 600;">
+            <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+                <div class="relative flex items-center justify-between h-16">
+                    <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+                        <!-- Mobile menu button-->
+                        <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                            <span class="sr-only">Open main menu</span>
+                            <!--
+                            Icon when menu is closed.
+
+                            Heroicon name: outline/menu
+
+                            Menu open: "hidden", Menu closed: "block"
+                            -->
+                            <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                            <!--
+                            Icon when menu is open.
+
+                            Heroicon name: outline/x
+
+                            Menu open: "block", Menu closed: "hidden"
+                            -->
+                            <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                    <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
+                        <div class="flex-shrink-0 flex items-center">
+                            <!-- <img class="block lg:hidden h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg" alt="Workflow"> -->
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" class="text-white hidden lg:block h-8 w-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg> -->
+                            <img class="hidden: lg:block h-8 w-auto" src="../assets/img/red-panda.png" alt="red panda">
+                            <div class="text-orange-500 text-quicksand">Pandassist</div>
+                            <!-- <img class="hidden lg:block h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg" alt="Workflow"> -->
+                        </div>
+                        <div class="hidden sm:block sm:ml-6">
+                            <div class="flex space-x-4">
+                                <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+                                <a href="#" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium" aria-current="page">Dashboard</a>
+
+                                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Team</a>
+
+                                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Projects</a>
+
+                                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Calendar</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                        <button type="button" class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                            <span class="sr-only">View notifications</span>
+                            <!-- Heroicon name: outline/bell -->
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                        </button>
+
+                        <!-- Profile dropdown -->
+                        <div class="ml-3 relative">
+                            <div>
+                                <button type="button" class="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                    <span class="sr-only">Open user menu</span>
+                                    <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                                </button>
+                            </div>
+
+                            <!--
+                            Dropdown menu, show/hide based on menu state.
+
+                            Entering: "transition ease-out duration-100"
+                            From: "transform opacity-0 scale-95"
+                            To: "transform opacity-100 scale-100"
+                            Leaving: "transition ease-in duration-75"
+                            From: "transform opacity-100 scale-100"
+                            To: "transform opacity-0 scale-95"
+                            -->
+                            <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                                <!-- Active: "bg-gray-100", Not Active: "" -->
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Settings</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="rounded-lg shadow-lg bg-white max-w-md w-72 relative">
+                <!-- Mobile menu, show/hide based on menu state. -->
+            <div class="sm:hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1">
+                    <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+                    <a href="#" class="bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium" aria-current="page">Dashboard</a>
+
+                    <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Team</a>
+
+                    <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Projects</a>
+
+                    <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Calendar</a>
+                </div>
+            </div>
+        </nav> <!-- END NAV -->
+    
+        <div id="mainContainer" class="container w-max mx-auto flex items-start">
+            <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-80 w-96">
                 <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg">
-                    <h2 style="font-size: 1.35rem; letter-spacing: -0.075rem;">Students</h2>
+                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg" onclick="event.stopPropagation(); closePopups(); $('#newEventPopup').fadeIn(60);">
+                    <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Events</h2>
                 </header>
-                <div>
-                    <div class="student flex items-center">
-                        <img src="/assets/img/profile-default-male.png" class="rounded-full h-12 pr-1">
-                        <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Adam Oates</h5>
-                    </div>
-                    <div class="student flex items-center">
-                        <img src="/assets/img/profile-default-male.png" class="rounded-full h-12 pr-1">
-                        <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Nathan Oates</h5>
-                    </div>
-                    <div class="student flex items-center">
-                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Apryl Oates</h5>
-                    </div>
-                    <div class="student flex items-center">
-                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Aspen Oates</h5>
-                    </div>
-                    <div class="student flex items-center">
-                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Lily Oates</h5>
-                    </div>
-                    <div class="student flex items-center">
-                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Ryleigh Oates</h5>
-                    </div>
-                    <div class="student flex items-center">
-                        <img src="/assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h5 class="pt-2 leading-tight font-medium mb-2" style="font-weight: bold;">Sierra Oates</h5>
-                    </div>
+                <div class="h-80 overflow-x-auto">
+                    <a href="/events/field-trip" class="student block">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold">
+                            Field Trip
+                            <span class="float-right text-manjari text-sm relative" style="top: 5px; font-weight: normal;">4-24-2022</span>
+                        </h4>
+                    </a>
+                    <a href="/events/graduation" class="student block">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold">
+                            Apryl's Graduation
+                            <span class="float-right text-manjari text-sm relative" style="top: 5px; font-weight: normal;">May 1st, 2022</span>
+                        </h4>
+                    </a>
+                </div>
+            </div>
+
+            <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-80 w-96 relative">
+                <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
+                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg" onclick="event.stopPropagation(); closePopups(); $('#newStudentPopup').fadeIn(60);">
+                    <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Students</h2>
+                </header>
+                <div class="h-80 overflow-x-auto">
+                    <a href="/students/Oates-Taylor" class="student flex items-center">
+                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Taylor Oates</h4>
+                    </a>
+                    <a href="/students/Oates-Adam" class="student flex items-center">
+                        <img src="../assets/img/profile-default-male.png" class="rounded-full h-12 pr-1">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Adam Oates</h4>
+                    </a>
+                    <a href="/students/Oates-Nathan" class="student flex items-center">
+                        <img src="../assets/img/profile-default-male.png" class="rounded-full h-12 pr-1">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Nathan Oates</h4>
+                    </a>
+                    <a href="/students/Oates-Apryl" class="student flex items-center">
+                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Apryl Oates</h4>
+                    </a>
+                    <a href="/students/Oates-Aspen" class="student flex items-center">
+                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Aspen Oates</h4>
+                    </a>
+                    <a href="/students/Oates-Lily" class="student flex items-center">
+                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Lily Oates</h4>
+                    </a>
+                    <a href="/students/Oates-Ryleigh" class="student flex items-center">
+                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Ryleigh Oates</h4>
+                    </a>
+                    <a href="/students/Oates-Sierra" class="student flex items-center">
+                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
+                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Sierra Oates</h4>
+                    </a>
                 </div>
             </div>
         </div>
         
         <div id="newEventPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md" style="width: 480px; left: 50%; margin-left: -240px; top: 30%;" onclick="event.stopPropagation();">
-            <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="$('#newEventPopup').fadeOut(60);">
+            <img class="float-right cursor-pointer h-10 rotate-45" src="../assets/img/add.svg" onclick="$('#newEventPopup').fadeOut(60);">
             <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Event</h2>
             <div class="text-lg">
                 <div class="my-2">
@@ -84,6 +200,30 @@
             <div class="mx-auto text-center">
                 <button id="eventCreateBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="createEvent()">Create</button>
                 <button id="eventCancelBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="$('#newEventPopup').fadeOut(60);">Cancel</button>
+            </div>
+        </div>
+
+        <div id="newStudentPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md" style="width: 480px; left: 50%; margin-left: -240px; top: 30%;" onclick="event.stopPropagation();">
+            <img class="float-right cursor-pointer h-10 rotate-45" src="../assets/img/add.svg" onclick="$('#newStudentPopup').fadeOut(60);">
+            <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Student</h2>
+            <div class="text-lg">
+                <div class="my-2">
+                    Name:
+                    <input id="studentName" class="w-3/4 text-base rounded px-2 py-1 bg-slate-100 hover:bg-slate-200" value="John Smith" onclick="if (this.value == 'John Smith') this.value = '';">
+                </div>
+                <div class="my-2">
+                    School Year:
+                    <input id="studentYear" class="w-3/4 text-base rounded px-2 py-1 bg-slate-100 hover:bg-slate-200">
+                </div>
+                <div class="my-2">
+                    Avatar:
+                    <input id="studentAvatar" type="file" accept=".jpg,.png,.qoif" class="cursor-pointer text-base bg-slate-100 rounded px-2 py-1 hover:bg-slate-200">
+                </div>
+            </div>
+            <br>
+            <div class="mx-auto text-center">
+                <button id="studentCreateBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="createStudent()">Create</button>
+                <button id="studentCancelBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="$('#newStudentPopup').fadeOut(60);">Cancel</button>
             </div>
         </div>
     </body>
