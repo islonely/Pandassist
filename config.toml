@@ -5,4 +5,4 @@ dbname = "pandassist"
 host = "127.0.0.1"
 port = 3306
 username = "panda"
-password = "p@nda$$ist"
+password = "p@nda$$isT"

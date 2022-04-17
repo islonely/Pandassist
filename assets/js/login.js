@@ -43,6 +43,21 @@ $(document).ready(function() {
             return false
         }
     }
+
+    function isPhoneValid(phone) {
+        let usphone = /^(\+0?1\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/
+        // The plan is to support US customers only, but this is just in case
+        // plans change and business is successful.
+        //let globalphone = /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/
+
+        if (phone === undefined) return false
+
+        if (!usphone.test(phone)) {
+            showToast('Malformatted phone number.')
+            return false
+        }
+        return true
+    }
     
     function isPasswordValid(password) {
         if (password === '') {
@@ -118,7 +133,9 @@ $(document).ready(function() {
         let $username = $(this).find('#username')
         let $name = $(this).find('#name')
         let $email = $(this).find('#email')
+        let $phone = $(this).find('#phone')
         let $password = $(this).find('#password')
+        let $rememberMe = $(this).find('#rememberMe')
         let $confirmPassword = $(this).find('#confirmPassword')
         
         if ($username.val() != $username.val().trim()) {
@@ -130,6 +147,7 @@ $(document).ready(function() {
             if (!cont) return false
         }
         if (!isEmailValid($email)) return false
+        if (!isPhoneValid($phone.val())) return false
         if (!isPasswordValid($password.val())) return false
         if ($password.val() != $confirmPassword.val()) {
             showToast('Password and Confirm Password fields do not match.')
@@ -146,6 +164,8 @@ $(document).ready(function() {
                 username: $username.val().trim(),
                 name: $name.val().trim(),
                 email: $email.val().trim(),
+                phone: $phone.val().trim(),
+                remember_me: $rememberMe.is(':checked'),
                 password: $password.val()
             }),
             
