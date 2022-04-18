@@ -6,7 +6,7 @@ import mysql
 import nedpals.vex.ctx
 import nedpals.vex.router
 import nedpals.vex.server
-import nedpals.vex.session as vexses
+import nedpals.vex.session
 import os
 import time
 import toml
@@ -22,7 +22,7 @@ mut:
 // Mainly to send back to a jQuery $.ajax request.
 struct JsonResponse {
 	message string
-	error bool
+	error   bool
 }
 
 // str returns JsonResponse as a JSON encoded string.
@@ -35,41 +35,55 @@ fn main() {
 		config: parse_toml(const_config_path)
 	}
 	app.dbconn = new_connection(app.config)
-	
+
 	// serves files in the assets directory on the specified path
 	route_assets := fn (req &ctx.Req, mut res ctx.Resp) {
 		res.send_file('./assets/' + req.params['path'], 200)
 	}
-	
-	route_dashboard := fn (req &ctx.Req, mut res ctx.Resp) {
-		mut session := vexses.start(req, mut res, secure: true)
-		if session.is_empty() {
+
+	route_dashboard := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+		mut ses := session.start(req, mut res, secure: true)
+		if !ses.has('email') {
 			res.redirect('/login')
 			return
 		}
-		
+
 		mut dashboard_html := os.read_file('./html/dashboard.html') or {
 			res.send('Internal Server Error', 500)
 			return
 		}
-		insert_header_at := dashboard_html.index('<!--vex-insert-navbar-->') or {-1}
-		if insert_header_at >= 0 {
-			dashboard_html = dashboard_html[0..insert_header_at] + header_html.html() + dashboard_html[insert_header_at..dashboard_html.len]
+
+		mut id := ses.get('id').int()
+		if id == 0 {
+			id = app.get_id_from_email(ses.get('email')) or {
+				// this should never happen since we check for email
+				// at the beginning of func.
+				res.redirect('/login')
+				return
+			}
 		}
-		
+
+		teacher := app.get_teacher(id) or {
+			res.send('Internal Server Error', 500)
+			println(err.msg())
+			return
+		}
+		println(teacher.students.html())
+		dashboard_html = dashboard_html.replace('\$vex_insert_students', teacher.students.html())
+
 		res.send_html(dashboard_html, 200)
 	}
-	
+
 	// route_login serves the login page to the end user
 	route_login := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
-		session := vexses.start(req, mut res, secure: true)
-		if session.get('logged_in').bool() {
+		ses := session.start(req, mut res, secure: true)
+		if ses.get('logged_in').bool() {
 			res.redirect('/dashboard')
 			return
 		}
 		res.send_file('./html/login.html', 200)
 	}
-	
+
 	// route_login_post handles post request made to the login
 	// route. This will either be a request to login or to
 	// register a new user.
@@ -77,33 +91,36 @@ fn main() {
 		mut data := req.parse_form() or {
 			res.send_json(JsonResponse{
 				error: true
-				message: 'Failed to parse form data: ${err.msg()}'
+				message: 'Failed to parse form data: $err.msg()'
 			}, 200)
 			return
 		}
-		
-		mut session := vexses.start(req, mut res, secure: true)
-		
+
+		mut ses := session.start(req, mut res, secure: true)
+
 		match data['action'] {
 			'login' {
 				app.dbconn.connect() or {
 					res.send_json(JsonResponse{
 						error: true
-						message: 'Failed to connect to database. ${err.msg()}'
+						message: 'Failed to connect to database. $err.msg()'
 					}, 200)
 					return
 				}
-				defer { app.dbconn.close() }
-				
-				query_hashword := 'SELECT password FROM teachers WHERE email=\'' + data['email'] + '\';'
+				defer {
+					app.dbconn.close()
+				}
+
+				query_hashword := "SELECT password FROM teachers WHERE email='" + data['email'] +
+					"';"
 				result_hashword := app.dbconn.query(query_hashword) or {
 					res.send_json(JsonResponse{
 						error: true
-						message: 'Failed to query database. ${err.msg()}'
+						message: 'Failed to query database. $err.msg()'
 					}, 200)
 					return
 				}
-				
+
 				// no user in database with provided email.
 				if result_hashword.n_rows() == 0 {
 					res.send_json(JsonResponse{
@@ -112,7 +129,7 @@ fn main() {
 					}, 200)
 					return
 				}
-				
+
 				hashword := result_hashword.maps()[0]['password']
 				bcrypt.compare_hash_and_password(data['password'].bytes(), hashword.bytes()) or {
 					res.send_json(JsonResponse{
@@ -121,55 +138,58 @@ fn main() {
 					}, 200)
 					return
 				}
-				
-				new_hashword := bcrypt.generate_from_password(data['password'].bytes(), calc_ideal_bcrypt_cost()) or {
+
+				new_hashword := bcrypt.generate_from_password(data['password'].bytes(),
+					calc_ideal_bcrypt_cost()) or {
 					res.send_json(JsonResponse{
 						error: false
 						message: 'Notice: Failed to hash new password.'
 					}, 200)
 					return
 				}
-				query_update_password := 'UPDATE teachers SET password=\'' + new_hashword + '\' WHERE email=\'' + data['email'] + '\';'
+				query_update_password := "UPDATE teachers SET password='" + new_hashword +
+					"' WHERE email='" + data['email'] + "';"
 				app.dbconn.query(query_update_password) or {
-					res.send_json(JsonResponse {
+					res.send_json(JsonResponse{
 						error: false
 						message: 'Notice: Failed to insert new password hash.'
 					}, 200)
 					return
 				}
-				
+
 				if app.dbconn.affected_rows() == 0 {
-					res.send_json(JsonResponse {
+					res.send_json(JsonResponse{
 						error: false
 						message: 'Notice: Failed to insert new password hash.'
 					}, 200)
 					return
 				}
-				
-				session.set_many('logged_in', 'true', 'email', data['email']) or {}
+
+				ses.set_many('logged_in', 'true', 'email', data['email']) or {}
 				res.send_json(JsonResponse{
 					error: false
 					message: 'Successfully logged in.'
 				}, 200)
 			}
 			'register' {
-				data['password'] = bcrypt.generate_from_password(data['password'].bytes(), calc_ideal_bcrypt_cost()) or {
+				data['password'] = bcrypt.generate_from_password(data['password'].bytes(),
+					calc_ideal_bcrypt_cost()) or {
 					res.send_json(JsonResponse{
 						error: true
 						message: 'Failed to hash password.'
 					}, 200)
 					return
 				}
-				
+
 				register_user(mut app.dbconn, data) or {
 					res.send_json(JsonResponse{
 						error: true
-						message: 'Failed to insert new user into database: ${err.msg()}'
+						message: 'Failed to insert new user into database: $err.msg()'
 					}, 200)
 					return
 				}
-				
-				session.set_many('logged_in', 'true', 'email', data['email']) or {}
+
+				ses.set_many('logged_in', 'true', 'email', data['email']) or {}
 				res.send_json(JsonResponse{
 					message: 'Successfully registered user.'
 				}, 200)
@@ -182,13 +202,13 @@ fn main() {
 			}
 		}
 	}
-	
+
 	mut router := router.new()
 	router.route(.get, '/assets/*path', route_assets)
 	router.route(.get, '/dashboard', route_dashboard)
 	router.route(.get, '/login', route_login)
 	router.route(.post, '/login', route_login_post)
-	
+
 	server.serve(router, app.config.value('port').default_to('8080').int())
 }
 
@@ -196,9 +216,11 @@ fn main() {
 // everything checks out, then user information is inserted
 // into database.
 fn register_user(mut conn mysql.Connection, data map[string]string) ? {
-	conn.connect()?
-	defer { conn.close() }
-	
+	conn.connect() ?
+	defer {
+		conn.close()
+	}
+
 	// see db.v for values of const's
 	if data['username'].len > const_mysql_username_max_len {
 		return const_mysql_error_username_gt_max
@@ -215,26 +237,34 @@ fn register_user(mut conn mysql.Connection, data map[string]string) ? {
 	if data['phone'].len > const_mysql_phone_max_len {
 		return const_mysql_error_phone_gt_max
 	}
-	
+
 	// Check if username is taken. Two people cannot possibly
 	// be in possession of the same username.
-	query_username_taken := 'SELECT * FROM teachers WHERE username=\'' + data['username'] + '\';'
-	result_username_taken := conn.query(query_username_taken)?
+	query_username_taken := "SELECT * FROM teachers WHERE username='" + data['username'] + "';"
+	result_username_taken := conn.query(query_username_taken) ?
 	if result_username_taken.n_rows() > 0 {
 		return const_mysql_error_username_taken
 	}
-	
+
 	// Check if email is taken.
-	query_email_taken := 'SELECT * FROM teachers WHERE email=\'' + data['email'] + '\';'
-	result_email_taken := conn.query(query_email_taken)?
+	query_email_taken := "SELECT * FROM teachers WHERE email='" + data['email'] + "';"
+	result_email_taken := conn.query(query_email_taken) ?
 	if result_email_taken.n_rows() > 0 {
 		return const_mysql_error_email_taken
 	}
-	
+
 	account_birth := time.sys_mono_now()
-	query_insert := 'INSERT INTO teachers (username, full_name, email, password, account_birth) VALUES (\'' + data['username'] + '\', \'' + data['name'] + '\', \'' + data['email'] + '\', \'' + data['password'] + '\', ' + account_birth.str() + ');'
-	result_insert := conn.query(query_insert)?
+	query_insert :=
+		"INSERT INTO teachers (username, full_name, email, password, account_birth) VALUES ('" +
+		data['username'] + "', '" + data['name'] + "', '" + data['email'] + "', '" +
+		data['password'] + "', " + account_birth.str() + ');'
+	result_insert := conn.query(query_insert) ?
 	if conn.affected_rows() == 0 {
 		return error('Failed to insert user into database. ' + result_insert.str())
 	}
+}
+
+// God's Word does not return void
+fn gods_word() bool {
+	return true
 }

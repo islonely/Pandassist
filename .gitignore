@@ -8,3 +8,5 @@ pandassist
 *.dll
 vls.log
 .editorconfig
+
+config.toml

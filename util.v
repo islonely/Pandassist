@@ -5,10 +5,9 @@ import os
 import time
 import toml
 
-const(
-	const_config_path = './config.toml'
-	const_default_conf = 
-	'
+const (
+	const_config_path  = './config.toml'
+	const_default_conf = '
 	port = 80
 	
 	[mysql]
@@ -43,10 +42,12 @@ fn calc_ideal_bcrypt_cost() int {
 	mut cost := 1
 	mut sw := time.new_stopwatch()
 	sw.start()
-	hash := bcrypt.generate_from_password('microbenchmark'.bytes(), cost) or {''}
+	hash := bcrypt.generate_from_password('microbenchmark'.bytes(), cost) or { '' }
 	sw.stop()
-	if hash == '' { return bcrypt.default_cost }
-	
+	if hash == '' {
+		return bcrypt.default_cost
+	}
+
 	mut duration_ms := sw.elapsed().milliseconds()
 	for duration_ms < 250 {
 		cost++

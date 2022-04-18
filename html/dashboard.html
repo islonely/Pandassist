@@ -139,38 +139,7 @@
                     <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Students</h2>
                 </header>
                 <div class="h-80 overflow-x-auto">
-                    <a href="/students/Oates-Taylor" class="student flex items-center">
-                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Taylor Oates</h4>
-                    </a>
-                    <a href="/students/Oates-Adam" class="student flex items-center">
-                        <img src="../assets/img/profile-default-male.png" class="rounded-full h-12 pr-1">
-                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Adam Oates</h4>
-                    </a>
-                    <a href="/students/Oates-Nathan" class="student flex items-center">
-                        <img src="../assets/img/profile-default-male.png" class="rounded-full h-12 pr-1">
-                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Nathan Oates</h4>
-                    </a>
-                    <a href="/students/Oates-Apryl" class="student flex items-center">
-                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Apryl Oates</h4>
-                    </a>
-                    <a href="/students/Oates-Aspen" class="student flex items-center">
-                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Aspen Oates</h4>
-                    </a>
-                    <a href="/students/Oates-Lily" class="student flex items-center">
-                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Lily Oates</h4>
-                    </a>
-                    <a href="/students/Oates-Ryleigh" class="student flex items-center">
-                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Ryleigh Oates</h4>
-                    </a>
-                    <a href="/students/Oates-Sierra" class="student flex items-center">
-                        <img src="../assets/img/profile-default-female.png" class="rounded-full h-12 pr-1">
-                        <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold;">Sierra Oates</h4>
-                    </a>
+                    $vex_insert_students
                 </div>
             </div>
         </div>
@@ -212,8 +181,11 @@
                     <input id="studentName" class="w-3/4 text-base rounded px-2 py-1 bg-slate-100 hover:bg-slate-200" value="John Smith" onclick="if (this.value == 'John Smith') this.value = '';">
                 </div>
                 <div class="my-2">
-                    School Year:
-                    <input id="studentYear" class="w-3/4 text-base rounded px-2 py-1 bg-slate-100 hover:bg-slate-200">
+                    Gender:
+                    <select id="studentGender" class="cursor-pointer text-base bg-slate-100 rounded pl-2 py-2 hover:bg-slate-200">
+                        <option value="0">Male</option>
+                        <option value="1" selected>Female</option>
+                    </select>
                 </div>
                 <div class="my-2">
                     Avatar:
