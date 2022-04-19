@@ -3,7 +3,12 @@ module htmlbuilder
 import strings
 import os
 
-// VEX's html module kinda sucks
+pub const (
+	navbar = os.read_file('html/navbar.html') or {
+		println('Failed to read navbar.html: ' + err.msg())
+		exit(0)
+	}
+)
 
 const (
 	// specifies whether a tag needs a corresponding closing tag
@@ -235,9 +240,9 @@ pub fn (mut hb HTMLBuilder) str() string {
 //**** string.Builder functions ****
 
 // write_bytes appends bytes to the accumulated buffer [deprecated: 'use Builder.write_ptr() instead']
-pub fn (mut hb HTMLBuilder) write_bytes(bytes byteptr, len int) {
-	hb.sb.write_b(bytes)
-}
+// pub fn (mut hb HTMLBuilder) write_bytes(bytes byteptr, len int) {
+// 	hb.sb.write_byte(bytes)
+// }
 
 // write_ptr writes len bytes provided byteptr to the accumulated buffer.
 [unsafe]
@@ -249,10 +254,10 @@ pub fn (mut hb HTMLBuilder) write_ptr(ptr byteptr, len int) {
 }
 
 // write_b appends a single data byte to the accumulated buffer.
-pub fn (mut hb HTMLBuilder) write_b(data byte) {
-	hb.sb.write_string('\t'.repeat(hb.indent_level))
-	hb.sb.write_b(data)
-}
+// pub fn (mut hb HTMLBuilder) write_byte(data u8) {
+// 	hb.sb.write_string('\t'.repeat(hb.indent_level))
+// 	hb.sb.write_byte(data)
+// }
 
 // write implements the Writer interface.
 pub fn (mut hb HTMLBuilder) write(data []byte) ?int {

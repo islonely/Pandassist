@@ -1,6 +1,7 @@
 module main
 
 import crypto.bcrypt
+import htmlbuilder
 import json
 import mysql
 import nedpals.vex.ctx
@@ -16,6 +17,7 @@ struct App {
 mut:
 	config toml.Doc
 	dbconn mysql.Connection
+	html_components map[string]string
 }
 
 // JsonResponse is the the response sent back upon post request.
@@ -33,6 +35,9 @@ fn (jr JsonResponse) str() string {
 fn main() {
 	mut app := App{
 		config: parse_toml(const_config_path)
+		html_components: {
+			'navbar': htmlbuilder.navbar
+		}
 	}
 	app.dbconn = new_connection(app.config)
 
@@ -52,6 +57,7 @@ fn main() {
 			res.send('Internal Server Error', 500)
 			return
 		}
+		dashboard_html = dashboard_html.replace('\$vex_insert_navbar', app.html_components['navbar'])
 
 		mut id := ses.get('id').int()
 		if id == 0 {
@@ -68,7 +74,6 @@ fn main() {
 			println(err.msg())
 			return
 		}
-		println(teacher.students.html())
 		dashboard_html = dashboard_html.replace('\$vex_insert_students', teacher.students.html())
 
 		res.send_html(dashboard_html, 200)
@@ -202,12 +207,44 @@ fn main() {
 			}
 		}
 	}
+	
+	route_logout := fn (req &ctx.Req, mut res ctx.Resp) {
+		mut ses := session.start(req, mut res, secure: true)
+		ses.delete()
+		res.redirect('/dashboard')
+	}
+	
+	route_students := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+		nameid := req.params['name'].split('-')
+		if nameid.len < 2 {
+			res.send('404 Not Found - malformatted path', 404)
+			return
+		}
+		id := nameid[nameid.len-1]
+		
+		student := (app.get_students([id.int()]) or {
+			res.send('404 Not Found - No Student', 404)
+			return
+		})[0]
+		
+		mut student_html := os.read_file('./html/student.html') or {
+			res.send('Internal Server Error', 500)
+			return
+		}
+		
+		student_html = student_html.replace('\$vex_insert_student_name', student.name)
+		student_html = student_html.replace('\$vex_insert_navbar', app.html_components['navbar'])
+		
+		res.send_html(student_html, 200)
+	}
 
 	mut router := router.new()
 	router.route(.get, '/assets/*path', route_assets)
 	router.route(.get, '/dashboard', route_dashboard)
 	router.route(.get, '/login', route_login)
 	router.route(.post, '/login', route_login_post)
+	router.route(.get, '/logout', route_logout)
+	router.route(.get, '/students/*name', route_students)
 
 	server.serve(router, app.config.value('port').default_to('8080').int())
 }

@@ -16,6 +16,12 @@ struct Student {
 	gender Gender = .female
 }
 
+struct Event {
+	id int
+	description string
+	time time.Time
+}
+
 // Teacher represents a row from the `teachers` table in the databse.
 struct Teacher {
 	id       int
@@ -38,11 +44,11 @@ fn (students []Student) html() string {
 
 // html returns the html code for an individual Student
 fn (student Student) html() string {
-	name := student.name.replace(' ', '-')
+	path := student.name.replace(' ', '-') + '-$student.id'
 	gender := student.gender.str()
 	mut bldr := htmlbuilder.new_builder()
 	bldr.open_tag('a', {
-		'href':  '/students/$name'
+		'href':  '/students/$path'
 		'class': 'student flex items-center'
 	})
 	bldr.open_tag('img', {

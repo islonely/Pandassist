@@ -98,7 +98,7 @@ fn (mut app App) get_students(ids []int) ?[]Student {
 	}
 
 	if ids.len <= 0 {
-		return []Student{}
+		return none
 	}
 
 	mut query := 'SELECT * FROM students WHERE id IN (' + ids[0].str()
