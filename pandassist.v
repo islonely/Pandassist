@@ -46,6 +46,38 @@ fn main() {
 		res.send_file('./assets/' + req.params['path'], 200)
 	}
 
+	route_calendar := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+		mut ses := session.start(req, mut res, secure: true)
+		if !ses.has('email') {
+			res.redirect('/login')
+			return
+		}
+
+		mut calendar_html := os.read_file('./html/calendar.html') or {
+			res.send('Internal Server Error', 500)
+			return
+		}
+		calendar_html = calendar_html.replace('\$vex_insert_navbar', app.html_components['navbar'])
+
+		mut id := ses.get('id').int()
+		if id == 0 {
+			id = app.get_id_from_email(ses.get('email')) or {
+				// this should never happen since we check for email
+				// at the beginning of func.
+				res.redirect('/login')
+				return
+			}
+		}
+
+		teacher := app.get_teacher(id) or {
+			res.send('Internal Server Error', 500)
+			println(err.msg())
+			return
+		}
+
+		res.send_html(calendar_html, 200)
+	}
+
 	route_dashboard := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
 		mut ses := session.start(req, mut res, secure: true)
 		if !ses.has('email') {
@@ -240,6 +272,7 @@ fn main() {
 
 	mut router := router.new()
 	router.route(.get, '/assets/*path', route_assets)
+	router.route(.get, '/calendar', route_calendar)
 	router.route(.get, '/dashboard', route_dashboard)
 	router.route(.get, '/login', route_login)
 	router.route(.post, '/login', route_login_post)
