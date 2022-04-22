@@ -17,11 +17,18 @@
             $($('a[href="/dashboard"]')[0]).attr('class', 'bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium')
             $($('a[href="/dashboard"]')[1]).attr('class', 'bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium')
         </script>
-    
-        <div id="mainContainer" class="container w-max mx-auto flex items-start">
-            <div class="rounded-lg shadow-lg bg-white max-w-md w-96">
+        
+        <style>
+            @media screen and (max-width: 720px) {
+                #mainContainer {
+                    flex-direction: column;
+                }
+            }
+        </style>
+        <div id="mainContainer" class="container w-max mx-auto flex flex-wrap justify-around items-start">
+            <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-96 w-80" style="margin: 8px !important;">
                 <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg" onclick="event.stopPropagation(); closePopups(); $('#newEventPopup').fadeIn(60);">
+                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg" onclick="showPopup('#newEventPopup', event)">
                     <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Events</h2>
                 </header>
                 <div class="h-80 overflow-x-auto">
@@ -40,9 +47,9 @@
                 </div>
             </div>
 
-            <div class="rounded-lg shadow-lg bg-white max-w-md w-96 relative">
+            <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-96 w-80 relative" style="margin: 8px !important;">
                 <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg" onclick="event.stopPropagation(); closePopups(); $('#newStudentPopup').fadeIn(60);">
+                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg" onclick="showPopup('#newStudentPopup', event)">
                     <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Students</h2>
                 </header>
                 <div class="h-80 overflow-x-auto">
@@ -51,8 +58,10 @@
             </div>
         </div>
         
+        <div id="backdrop" class="inset-0 fixed bg-slate-900 opacity-70 hidden" onclick="windowClick(event)">&nbsp;</div>
+        
         <div id="newEventPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md" style="width: 480px; left: 50%; margin-left: -240px; top: 30%;" onclick="event.stopPropagation();">
-            <img class="float-right cursor-pointer h-10 rotate-45" src="../assets/img/add.svg" onclick="$('#newEventPopup').fadeOut(60);">
+            <img class="float-right cursor-pointer h-10 rotate-45" src="../assets/img/add.svg" onclick="windowClick(event)">
             <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Event</h2>
             <div class="text-lg">
                 <div class="my-2">
@@ -75,34 +84,34 @@
             <br>
             <div class="mx-auto text-center">
                 <button id="eventCreateBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="createEvent()">Create</button>
-                <button id="eventCancelBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="$('#newEventPopup').fadeOut(60);">Cancel</button>
+                <button id="eventCancelBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="windowClick(event)">Cancel</button>
             </div>
         </div>
 
-        <div id="newStudentPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md" style="width: 480px; left: 50%; margin-left: -240px; top: 30%;" onclick="event.stopPropagation();">
-            <img class="float-right cursor-pointer h-10 rotate-45" src="../assets/img/add.svg" onclick="$('#newStudentPopup').fadeOut(60);">
+        <div id="newStudentPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md border-gray-100 border-2 md:w-4/12 w-5/6 inset-0 m-auto h-fit" onclick="event.stopPropagation();">
+            <img class="float-right cursor-pointer h-10 rotate-45" src="../assets/img/add.svg" onclick="windowClick(event)">
             <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Student</h2>
             <div class="text-lg">
-                <div class="my-2">
-                    Name:
-                    <input id="studentName" class="w-3/4 text-base rounded px-2 py-1 bg-slate-100 hover:bg-slate-200" value="John Smith" onclick="if (this.value == 'John Smith') this.value = '';">
+                <div class="my-2 flex">
+                    <label for="studentName" class="mr-5">Name:</label>
+                    <input id="studentName" class="w-full sm:text-base text-sm rounded px-2 pt-2 pb-1 bg-slate-100 hover:bg-slate-200" value="John Smith" onclick="if (this.value == 'John Smith') this.value = '';">
                 </div>
-                <div class="my-2">
-                    Gender:
-                    <select id="studentGender" class="cursor-pointer text-base bg-slate-100 rounded pl-2 py-2 hover:bg-slate-200">
+                <div class="my-2 flex">
+                    <label for="studentGender" class="mr-2">Gender:</label>
+                    <select id="studentGender" class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded pl-2 pt-2 pb-1 hover:bg-slate-200">
                         <option value="0">Male</option>
                         <option value="1" selected>Female</option>
                     </select>
                 </div>
-                <div class="my-2">
-                    Avatar:
-                    <input id="studentAvatar" type="file" accept=".jpg,.png,.qoif" class="cursor-pointer text-base bg-slate-100 rounded px-2 py-1 hover:bg-slate-200">
+                <div class="my-2 flex">
+                    <label for="studentAvatar" class="mr-3">Avatar:</label>
+                    <input id="studentAvatar" type="file" accept=".jpg,.png,.qoif" class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded px-2 py-1 hover:bg-slate-200">
                 </div>
             </div>
             <br>
-            <div class="mx-auto text-center">
-                <button id="studentCreateBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="createStudent()">Create</button>
-                <button id="studentCancelBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="$('#newStudentPopup').fadeOut(60);">Cancel</button>
+            <div class="mx-auto text-center flex justify-evenly">
+                <button id="studentCreateBttn" class="w-full mr-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="createStudent()">Create</button>
+                <button id="studentCancelBttn" class="w-full ml-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="windowClick(event)">Cancel</button>
             </div>
         </div>
     </body>

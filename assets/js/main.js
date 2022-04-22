@@ -1,21 +1,24 @@
 $(document).ready(function() {
-    let selectedStudents = []
+    window.selectedStudents = []
 
     $('.student').on('click', function(evt) {
         evt.stopPropagation()
         $(this).css({background: '#c8daf5ad'})
-        selectedStudents += this
+        window.selectedStudents += this
     })
     
-    $(window).on('click', function(evt) {
-        $('#profileMenu').fadeOut(60)
-        
-        $('.student').css({background: 'white'})
-        selectedStudents = []
-
-        closePopups()
-    })
+    $(window).on('click', windowClick)
 })
+
+function windowClick(evt) {
+    $('#profileMenu').fadeOut(60)
+    $('#backdrop').fadeOut(60)
+    
+    $('.student').css({background: 'white'})
+    window.selectedStudents = []
+
+    closePopups()
+}
 
 function closePopups(ignore=null) {
     let popupIds = ['#newEventPopup', '#newStudentPopup']
@@ -26,6 +29,16 @@ function closePopups(ignore=null) {
         if (val !== undefined)
             $(val).fadeOut(60)
     })
+}
+
+function showPopup(qsel, evt) {
+    if (qsel === undefined || qsel === null)
+        return false
+    
+    evt.stopPropagation()
+    closePopups()
+    $('#backdrop').fadeIn(60)
+    $(qsel).fadeIn(60)
 }
 
 function showToast(msg) {
