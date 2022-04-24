@@ -5,11 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashbaord - Pandassist</title>
         
-        <link rel="stylesheet" href="../assets/css/main.css">
-        <script src="../assets/js/tailwindcss.js"></script>
-        <script src="../assets/js/jquery-3.6.0.min.js"></script>
-        <script src="../assets/js/main.js"></script>
-        <script src="../assets/js/dashboard.js"></script>
+        <link rel="stylesheet" href="/assets/css/main.css">
+        <script src="/assets/js/tailwindcss.js"></script>
+        <script src="/assets/js/jquery-3.6.0.min.js"></script>
+        <script src="/assets/js/main.js"></script>
+        <script src="/assets/js/dashboard.js"></script>
     </head>
     <body class="bg-slate-100">
         $vex_insert_navbar
@@ -28,7 +28,7 @@
         <div id="mainContainer" class="container w-max mx-auto flex flex-wrap justify-around items-start">
             <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-96 w-80" style="margin: 8px !important;">
                 <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg" onclick="showPopup('#newEventPopup', event)">
+                    <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg" onclick="showPopup('#newEventPopup', event)">
                     <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Events</h2>
                 </header>
                 <div class="h-80 overflow-x-auto">
@@ -49,7 +49,7 @@
 
             <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-96 w-80 relative" style="margin: 8px !important;">
                 <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="../assets/img/add.svg" onclick="showPopup('#newStudentPopup', event)">
+                    <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg" onclick="showPopup('#newStudentPopup', event)">
                     <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Students</h2>
                 </header>
                 <div class="h-80 overflow-x-auto">
@@ -60,8 +60,8 @@
         
         <div id="backdrop" class="inset-0 fixed bg-slate-900 opacity-70 hidden" onclick="windowClick(event)">&nbsp;</div>
         
-        <div id="newEventPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md" style="width: 480px; left: 50%; margin-left: -240px; top: 30%;" onclick="event.stopPropagation();">
-            <img class="float-right cursor-pointer h-10 rotate-45" src="../assets/img/add.svg" onclick="windowClick(event)">
+        <!-- <div id="newEventPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md" style="width: 480px; left: 50%; margin-left: -240px; top: 30%;" onclick="event.stopPropagation();">
+            <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="windowClick(event)">
             <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Event</h2>
             <div class="text-lg">
                 <div class="my-2">
@@ -86,10 +86,41 @@
                 <button id="eventCreateBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="createEvent()">Create</button>
                 <button id="eventCancelBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="windowClick(event)">Cancel</button>
             </div>
+        </div> -->
+        
+        <!-- CREATE EVENT POPUP -->
+        <div id="newEventPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md border-gray-100 border-2 md:w-4/12 w-5/6 inset-0 m-auto h-fit" onclick="event.stopPropagation();">
+            <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="windowClick(event)">
+            <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Student</h2>
+            <div class="text-lg">
+                <div class="my-2 flex">
+                    <label for="eventDesc" class="mr-5">Description:</label>
+                    <input id="eventDesc" class="w-full sm:text-base text-sm rounded px-2 pt-2 pb-1 bg-slate-100 hover:bg-slate-200" value="John Smith" onclick="if (this.value == 'John Smith') this.value = '';">
+                </div>
+                <div class="my-2 flex">
+                    <label for="eventCategory" class="mr-2">Category:</label>
+                    <select id="eventCategory" class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded pl-2 pt-2 pb-1 hover:bg-slate-200">
+                        <option value="-1">Add Category +</option>
+                        <option value="0">Field Trip</option>
+                        <option value="1">Test/Exam</option>
+                        <option value="2">Other</option>
+                    </select>
+                </div>
+                <div class="my-2 flex">
+                    <label for="eventDatetime" class="mr-3">Date:</label>
+                    <input id="eventDatetime" type="datetime-local" class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded px-2 py-1 hover:bg-slate-200">
+                </div>
+            </div>
+            <br>
+            <div class="mx-auto text-center flex justify-evenly">
+                <button id="eventCreateBttn" class="w-full mr-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="createEvent()">Create</button>
+                <button id="eventCancelBttn" class="w-full ml-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="windowClick(event)">Cancel</button>
+            </div>
         </div>
-
-        <div id="newStudentPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md border-gray-100 border-2 md:w-4/12 w-5/6 inset-0 m-auto h-fit" onclick="event.stopPropagation();">
-            <img class="float-right cursor-pointer h-10 rotate-45" src="../assets/img/add.svg" onclick="windowClick(event)">
+        
+        <!-- CREATE STUDENT POPUP -->
+        <form action="#" id="newStudentPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md border-gray-100 border-2 md:w-4/12 w-5/6 inset-0 m-auto h-fit" onclick="event.stopPropagation();">
+            <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="windowClick(event)">
             <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Student</h2>
             <div class="text-lg">
                 <div class="my-2 flex">
@@ -110,9 +141,9 @@
             </div>
             <br>
             <div class="mx-auto text-center flex justify-evenly">
-                <button id="studentCreateBttn" class="w-full mr-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="createStudent()">Create</button>
-                <button id="studentCancelBttn" class="w-full ml-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="windowClick(event)">Cancel</button>
+                <button type="button" id="studentCreateBttn" class="w-full mr-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="createStudent()">Create</button>
+                <button type="button" id="studentCancelBttn" class="w-full ml-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="windowClick(event)">Cancel</button>
             </div>
-        </div>
+        </form>
     </body>
 </html>

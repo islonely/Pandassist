@@ -3,20 +3,26 @@ module main
 import crypto.bcrypt
 import htmlbuilder
 import json
-import mysql
 import nedpals.vex.ctx
 import nedpals.vex.router
 import nedpals.vex.server
 import nedpals.vex.session
 import os
+import rand
+import crypto.sha1
 import time
 import toml
+
+
+const (
+	max_avatar_size = 1048576 // 1 MB in bytes
+	students_avatar_dir = './assets/img/students/'
+)
 
 // App is an extension of Router from the nedpals.vex module.
 struct App {
 mut:
 	config toml.Doc
-	dbconn mysql.Connection
 	html_components map[string]string
 }
 
@@ -39,7 +45,6 @@ fn main() {
 			'navbar': htmlbuilder.navbar
 		}
 	}
-	app.dbconn = new_connection(app.config)
 
 	// serves files in the assets directory on the specified path
 	route_assets := fn (req &ctx.Req, mut res ctx.Resp) {
@@ -69,7 +74,8 @@ fn main() {
 			}
 		}
 
-		teacher := app.get_teacher(id) or {
+		// just checking to see if teacher exists in database
+		_ := app.get_teacher(ses) or {
 			res.send('Internal Server Error', 500)
 			println(err.msg())
 			return
@@ -91,17 +97,7 @@ fn main() {
 		}
 		dashboard_html = dashboard_html.replace('\$vex_insert_navbar', app.html_components['navbar'])
 
-		mut id := ses.get('id').int()
-		if id == 0 {
-			id = app.get_id_from_email(ses.get('email')) or {
-				// this should never happen since we check for email
-				// at the beginning of func.
-				res.redirect('/login')
-				return
-			}
-		}
-
-		teacher := app.get_teacher(id) or {
+		teacher := app.get_teacher(ses) or {
 			res.send('Internal Server Error', 500)
 			println(err.msg())
 			return
@@ -112,7 +108,7 @@ fn main() {
 	}
 
 	// route_login serves the login page to the end user
-	route_login := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+	route_login := fn (req &ctx.Req, mut res ctx.Resp) {
 		ses := session.start(req, mut res, secure: true)
 		if ses.get('logged_in').bool() {
 			res.redirect('/dashboard')
@@ -137,7 +133,8 @@ fn main() {
 
 		match data['action'] {
 			'login' {
-				app.dbconn.connect() or {
+				mut conn := new_connection(app.config)
+				conn.connect() or {
 					res.send_json(JsonResponse{
 						error: true
 						message: 'Failed to connect to database. $err.msg()'
@@ -145,12 +142,12 @@ fn main() {
 					return
 				}
 				defer {
-					app.dbconn.close()
+					conn.close()
 				}
 
 				query_hashword := "SELECT password FROM teachers WHERE email='" + data['email'] +
 					"';"
-				result_hashword := app.dbconn.query(query_hashword) or {
+				result_hashword := conn.query(query_hashword) or {
 					res.send_json(JsonResponse{
 						error: true
 						message: 'Failed to query database. $err.msg()'
@@ -186,7 +183,7 @@ fn main() {
 				}
 				query_update_password := "UPDATE teachers SET password='" + new_hashword +
 					"' WHERE email='" + data['email'] + "';"
-				app.dbconn.query(query_update_password) or {
+				conn.query(query_update_password) or {
 					res.send_json(JsonResponse{
 						error: false
 						message: 'Notice: Failed to insert new password hash.'
@@ -194,7 +191,7 @@ fn main() {
 					return
 				}
 
-				if app.dbconn.affected_rows() == 0 {
+				if conn.affected_rows() == 0 {
 					res.send_json(JsonResponse{
 						error: false
 						message: 'Notice: Failed to insert new password hash.'
@@ -218,7 +215,7 @@ fn main() {
 					return
 				}
 
-				register_user(mut app.dbconn, data) or {
+				register_user(mut app, data) or {
 					res.send_json(JsonResponse{
 						error: true
 						message: 'Failed to insert new user into database: $err.msg()'
@@ -269,15 +266,163 @@ fn main() {
 		
 		res.send_html(student_html, 200)
 	}
+	
+	route_insert_post := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+		mut data := req.parse_form() or {
+			res.send_json(JsonResponse{
+				error: true
+				message: 'Failed to parse form data: $err.msg()'
+			}, 200)
+			return
+		}
+		
+		mut ses := session.start(req, mut res, secure: true)
+		
+		match req.params['table'] {
+			'student' {
+				if !('name' in data) ||
+				   !('gender' in data) {
+				    if data['name'].len == 0 ||
+				       data['gender'].len == 0 {
+				        res.send_json(JsonResponse{
+				            error: true
+				            message: 'Error: Inserting new student expects that length of name and gender be greater than zero.'
+				        }, 200)
+				        return
+				    }
+					mut student := Student{
+						name: data['name']
+						gender: Gender(data['gender'].int())
+					}
+					student.avatar_path = if 'avatar_path' in data { data['avatar_path'] } else { if student.gender == .male { '/assets/img/students/profile-default-male.png' } else { '/assets/img/students/profile-default-female.png' } }
+					mut conn := new_connection(app.config)
+					conn.connect() or {
+						res.send('Internal Server Error', 500)
+						return
+					}
+					defer {
+						conn.close()
+					}
+					
+					query := 'INSERT INTO `students` (name, gender, avatar_path) VALUES (\'$student.name\', $student.gender, \'$student.avatar_path\');'
+					conn.query(query) or {
+						res.send('Internal Server Error', 500)
+						println(err.msg())
+						return
+					}
+					
+					if conn.affected_rows() == 0 {
+						res.send_json(JsonResponse{
+							error: true
+							message: 'Unexpectedly failed to insert student.'
+						}, 200)
+						return
+					}
+					
+					teacher := app.get_teacher(ses) or {
+						res.send('Internal Server Error', 500)
+						println(err.msg())
+						return
+					}
+					
+					query_teacher := 'UPDATE `teachers` SET students=CONCAT(students, \',$student.id\') WHERE id=$teacher.id;'
+					conn.query(query_teacher) or {
+						res.send('Internal Server Error', 500)
+						println(err.msg())
+						return
+					}
+					
+					if conn.affected_rows() == 0 {
+						res.send_json(JsonResponse{
+							error: true
+							message: 'Unexpectedly failed to update teacher.'
+						}, 200)
+						return
+					}
+					
+					res.send_json(JsonResponse{
+						message: 'Successfully created student.'
+					}, 200)
+				} else {
+					res.send_json(JsonResponse{
+						error: true
+						message: 'Malformat: Inserting new student expects a name and gender post field.'
+					}, 200)
+					return
+				}
+			}
+			else {
+				res.send('404 Not Found', 404)
+			}
+		}
+	}
+	
+	route_upload_post := fn [mut app] (req &ctx.Req, mut res &ctx.Resp) {
+		data := req.parse_files() or {
+			res.send_json(JsonResponse{
+				error: true
+				message: 'Failed to parse form data: ${err.msg()}'
+			}, 200)
+			return
+		}
+		
+		match req.params['type'] {
+			'student-avatar' {
+				if !('file' in data) {
+					res.send_json(JsonResponse{
+						error: true
+						message: 'No file provided to upload.'
+					}, 200)
+					return
+				}
+								
+				file := data['file'][0]
+				if file.content.len == 0 || file.content.len > max_avatar_size {
+					res.send_json(JsonResponse{
+						error: true
+						message: 'Provided file is either empty or larger than $max_avatar_size bytes.'
+					}, 200)
+					return
+				}
+				
+				mut filename := sha1.hexhash(rand.uuid_v4()) + os.file_ext(file.filename)
+				// it seems somewhere somehow seemingly sporadic files will have the name
+				// and/or file type corrupted, but the data itself is still intact.
+				if file.filename.runes().len > 0 || file.content_type.runes().len > 0 {
+					// the extension itself is irrelevant since you read the file header
+					// bytes to determine file type
+					filename += '.png'
+				}
+				
+				os.write_file_array(students_avatar_dir + filename, file.content) or {
+					res.send_json(JsonResponse{
+						error: true
+						message: 'Failed to write file: ${err.msg()}'
+					}, 200)
+					return
+				}
+				
+				res.send_json(JsonResponse{
+					message: 'Successfully uploaded file.'
+				}, 200)
+			}
+			else {
+				res.send('404 Not Found', 404)
+				return
+			}
+		}
+	}
 
 	mut router := router.new()
 	router.route(.get, '/assets/*path', route_assets)
 	router.route(.get, '/calendar', route_calendar)
 	router.route(.get, '/dashboard', route_dashboard)
+	router.route(.post, '/insert/*table', route_insert_post)
 	router.route(.get, '/login', route_login)
 	router.route(.post, '/login', route_login_post)
 	router.route(.get, '/logout', route_logout)
 	router.route(.get, '/students/*name', route_students)
+	router.route(.post, '/upload/*type', route_upload_post)
 
 	server.serve(router, app.config.value('port').default_to('8080').int())
 }
@@ -285,7 +430,8 @@ fn main() {
 // register_user validates the fields provided in `data`. If
 // everything checks out, then user information is inserted
 // into database.
-fn register_user(mut conn mysql.Connection, data map[string]string) ? {
+fn register_user(mut app App, data map[string]string) ? {
+	mut conn := new_connection(app.config)
 	conn.connect() ?
 	defer {
 		conn.close()
@@ -335,6 +481,7 @@ fn register_user(mut conn mysql.Connection, data map[string]string) ? {
 }
 
 // God's Word does not return void
+[inline]
 fn gods_word() bool {
 	return true
 }

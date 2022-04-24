@@ -1,6 +1,7 @@
 module main
 
 import mysql
+import nedpals.vex.session
 import time
 import toml
 
@@ -44,12 +45,13 @@ fn new_connection(config toml.Doc) mysql.Connection {
 // get_id_from_email connects to the database and fetches the id
 // of the row with the provided email
 fn (mut app App) get_id_from_email(email string) ?int {
-	app.dbconn.connect() ?
+	mut conn := new_connection(app.config)
+	conn.connect() ?
 	// closing the database is causing a RUNITIME ERROR: abort()
-	// defer { app.dbconn.close() }
+	defer { conn.close() }
 
 	query := 'SELECT id FROM teachers WHERE email=\'$email\';'
-	res := app.dbconn.query(query) ?
+	res := conn.query(query) ?
 	return if res.n_rows() == 0 {
 		const_mysql_error_teacher_not_found
 	} else {
@@ -58,14 +60,20 @@ fn (mut app App) get_id_from_email(email string) ?int {
 }
 
 // get_teacher creates a Teacher object from the provided id
-fn (mut app App) get_teacher(id int) ?Teacher {
-	app.dbconn.connect() ?
+fn (mut app App) get_teacher(ses session.Session) ?Teacher {
+	mut id := ses.get('id').int()
+	if id == 0 {
+		id = app.get_id_from_email(ses.get('email')) ?
+	}
+
+	mut conn := new_connection(app.config)
+	conn.connect() ?
 	defer {
-		app.dbconn.close()
+		conn.close()
 	}
 
 	query := 'SELECT * FROM teachers WHERE id=$id;'
-	res := app.dbconn.query(query) ?
+	res := conn.query(query) ?
 	if res.n_rows() == 0 {
 		return const_mysql_error_teacher_not_found
 	}
@@ -92,9 +100,10 @@ fn (mut app App) get_teacher(id int) ?Teacher {
 
 // get_students returns an array of Student from the provided ids
 fn (mut app App) get_students(ids []int) ?[]Student {
-	app.dbconn.connect() ?
+	mut conn := new_connection(app.config)
+	conn.connect() ?
 	defer {
-		app.dbconn.close()
+		conn.close()
 	}
 
 	if ids.len <= 0 {
@@ -109,7 +118,7 @@ fn (mut app App) get_students(ids []int) ?[]Student {
 	}
 	query += ');'
 
-	res := app.dbconn.query(query) ?
+	res := conn.query(query) ?
 	if res.n_rows() == 0 {
 		return const_mysql_error_students_not_found
 	}

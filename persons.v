@@ -11,12 +11,16 @@ enum Gender {
 
 // Student represents a row from the `students` table in the database.
 struct Student {
+mut:
 	id     int
 	name   string
 	gender Gender = .female
+	avatar_path string
 }
 
+// Event represents a row from the `events` table in the database.
 struct Event {
+mut:
 	id int
 	description string
 	time time.Time
@@ -24,6 +28,7 @@ struct Event {
 
 // Teacher represents a row from the `teachers` table in the databse.
 struct Teacher {
+mut:
 	id       int
 	username string
 	name     string
@@ -52,7 +57,7 @@ fn (student Student) html() string {
 		'class': 'student flex items-center'
 	})
 	bldr.open_tag('img', {
-		'src':   '/assets/img/profile-default-${gender}.png'
+		'src':   '/assets/img/students/profile-default-${gender}.png'
 		'class': 'rounded-full h-12 pr-1'
 	})
 	bldr.open_tag('h4', {
