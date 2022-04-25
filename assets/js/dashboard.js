@@ -13,8 +13,8 @@ function createStudent() {
     let $form = $('form#newStudentPopup')
     let name = $form.find('#studentName').val().trim()
     let gender = $form.find('#studentGender').val()
-    let files = $form.find('#studentAvatar').get(0)
-    let avatar = (files.length > 0) ? file.files[0] : null
+    let files = $form.find('#studentAvatar').get(0).files
+    let avatar = (files.length > 0) ? files[0] : null
     let filepath;
     if (avatar == null) {
         if (gender == '0') {
@@ -71,7 +71,7 @@ function createStudent() {
             if (res.error) {
                 showToast(res.message)
             } else {
-                filepath = (filepath == null) ? res.data.path : filepath
+                filepath = (filepath == null) ? '/assets/img/students/' + res.data.path : filepath
                 $.ajax({
                     url: '/insert/students',
                     type: 'POST',

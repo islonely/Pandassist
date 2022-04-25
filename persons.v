@@ -57,8 +57,13 @@ fn (student Student) html() string {
 		'class': 'student flex items-center'
 	})
 	bldr.open_tag('img', {
-		'src':   '/assets/img/students/profile-default-${gender}.png'
+		'src':   if student.avatar_path == '' {
+			'/assets/img/students/profile-default-${gender}.png'
+		} else {
+			student.avatar_path
+		}
 		'class': 'rounded-full h-12 pr-1'
+		'style': 'width: 3.25rem !important;'
 	})
 	bldr.open_tag('h4', {
 		'class': 'pt-2 leading-tight mb-2'

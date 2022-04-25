@@ -129,6 +129,7 @@ fn (mut app App) get_students(ids []int) ?[]Student {
 			id: row['id'].u64()
 			name: row['name']
 			gender: Gender(row['gender'].int())
+			avatar_path: row['avatar_path']
 		}
 	}
 	return students
