@@ -12,7 +12,7 @@ enum Gender {
 // Student represents a row from the `students` table in the database.
 struct Student {
 mut:
-	id     int
+	id     u64
 	name   string
 	gender Gender = .female
 	avatar_path string
@@ -21,7 +21,7 @@ mut:
 // Event represents a row from the `events` table in the database.
 struct Event {
 mut:
-	id int
+	id u64
 	description string
 	time time.Time
 }
@@ -29,7 +29,7 @@ mut:
 // Teacher represents a row from the `teachers` table in the databse.
 struct Teacher {
 mut:
-	id       int
+	id       u64
 	username string
 	name     string
 	email    string

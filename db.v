@@ -85,7 +85,7 @@ fn (mut app App) get_teacher(ses session.Session) ?Teacher {
 		ids << i.trim_space().int()
 	}
 	return Teacher{
-		id: row['id'].int()
+		id: row['id'].u64()
 		username: row['username']
 		name: row['full_name']
 		email: row['email']
@@ -116,7 +116,7 @@ fn (mut app App) get_students(ids []int) ?[]Student {
 			query += ', ' + ids[i].str()
 		}
 	}
-	query += ');'
+	query += ') ORDER BY name;'
 
 	res := conn.query(query) ?
 	if res.n_rows() == 0 {
@@ -126,7 +126,7 @@ fn (mut app App) get_students(ids []int) ?[]Student {
 	mut students := []Student{cap: int(res.n_rows())}
 	for row in res.maps() {
 		students << Student{
-			id: row['id'].int()
+			id: row['id'].u64()
 			name: row['name']
 			gender: Gender(row['gender'].int())
 		}

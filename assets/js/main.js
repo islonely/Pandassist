@@ -68,3 +68,7 @@ function getSchoolYear() {
         return (y-1) + '-' + y
     }
 }
+
+async function sleep(ms=0) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

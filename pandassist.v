@@ -31,6 +31,7 @@ mut:
 struct JsonResponse {
 	message string
 	error   bool
+	data    map[string]string
 }
 
 // str returns JsonResponse as a JSON encoded string.
@@ -279,9 +280,8 @@ fn main() {
 		mut ses := session.start(req, mut res, secure: true)
 		
 		match req.params['table'] {
-			'student' {
-				if !('name' in data) ||
-				   !('gender' in data) {
+			'students' {
+				if ('name' in data) && ('gender' in data) {
 				    if data['name'].len == 0 ||
 				       data['gender'].len == 0 {
 				        res.send_json(JsonResponse{
@@ -304,7 +304,7 @@ fn main() {
 						conn.close()
 					}
 					
-					query := 'INSERT INTO `students` (name, gender, avatar_path) VALUES (\'$student.name\', $student.gender, \'$student.avatar_path\');'
+					query := 'INSERT INTO `students` (name, gender, avatar_path) VALUES (\'$student.name\', ${int(student.gender)}, \'$student.avatar_path\');'
 					conn.query(query) or {
 						res.send('Internal Server Error', 500)
 						println(err.msg())
@@ -318,6 +318,8 @@ fn main() {
 						}, 200)
 						return
 					}
+					
+					student.id = u64(conn.last_id() as int)
 					
 					teacher := app.get_teacher(ses) or {
 						res.send('Internal Server Error', 500)
@@ -404,6 +406,10 @@ fn main() {
 				
 				res.send_json(JsonResponse{
 					message: 'Successfully uploaded file.'
+					data: {
+						'path': filename
+						'size': file.content.len.str()
+					}
 				}, 200)
 			}
 			else {
@@ -414,6 +420,7 @@ fn main() {
 	}
 
 	mut router := router.new()
+	// alphabetized
 	router.route(.get, '/assets/*path', route_assets)
 	router.route(.get, '/calendar', route_calendar)
 	router.route(.get, '/dashboard', route_dashboard)

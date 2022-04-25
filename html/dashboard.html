@@ -58,35 +58,14 @@
             </div>
         </div>
         
-        <div id="backdrop" class="inset-0 fixed bg-slate-900 opacity-70 hidden" onclick="windowClick(event)">&nbsp;</div>
+        <div class="spinner text-sm text-quicksand fixed bottom-3 text-center align-middle bg-slate-700 rounded-full text-white w-12 h-12">
+            <div class="flex justify-center items-stretch h-12">
+                <div id="uploadPercent" class="self-center table-cell align-middle">0</div>
+            </div>
+            <div class="spinner border-slate-700 border-t-sky-500 rounded-full w-12 h-12 fixed bottom-3" style="right: -100px; border-width: 6px; animation: spin 2s ease-in-out infinite;"></div>
+        </div>
         
-        <!-- <div id="newEventPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md" style="width: 480px; left: 50%; margin-left: -240px; top: 30%;" onclick="event.stopPropagation();">
-            <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="windowClick(event)">
-            <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Event</h2>
-            <div class="text-lg">
-                <div class="my-2">
-                    Description:
-                    <input id="eventDesc" class="w-3/4 text-base rounded px-2 py-1 bg-slate-100 hover:bg-slate-200" value="New Event" onclick="if (this.value == 'New Event') this.value=''" onfocusout="if (this.value === null || this.value.match(/^ *$/) !== null) this.value = 'New Event'">
-                </div>
-                <div class="my-2">
-                    Event Type:
-                    <select id="eventType" class="cursor-pointer text-base bg-slate-100 rounded pl-2 py-1 hover:bg-slate-200">
-                        <option value="fieldTrip">Field Trip</option>
-                        <option value="test">Test/Exam</option>
-                        <option value="addCategory">Add Category +</option>
-                    </select>
-                </div>
-                <div class="my-2">
-                    Date:
-                    <input id="eventDatetime" type="datetime-local" class="cursor-pointer text-base bg-slate-100 rounded px-2 py-1 hover:bg-slate-200">
-                </div>
-            </div>
-            <br>
-            <div class="mx-auto text-center">
-                <button id="eventCreateBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="createEvent()">Create</button>
-                <button id="eventCancelBttn" class="text-base bg-slate-100 rounded px-2 py-1 w-5/12 hover:bg-slate-200" onclick="windowClick(event)">Cancel</button>
-            </div>
-        </div> -->
+        <div id="backdrop" class="inset-0 fixed bg-slate-900 opacity-70 hidden" onclick="windowClick(event)">&nbsp;</div>
         
         <!-- CREATE EVENT POPUP -->
         <div id="newEventPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md border-gray-100 border-2 md:w-4/12 w-5/6 inset-0 m-auto h-fit" onclick="event.stopPropagation();">
