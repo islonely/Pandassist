@@ -103,9 +103,35 @@ fn main() {
 			println(err.msg())
 			return
 		}
+		
 		dashboard_html = dashboard_html.replace('\$vex_insert_students', teacher.students.html())
+		dashboard_html = dashboard_html.replace('\$vex_insert_events', teacher.events.html())
 
 		res.send_html(dashboard_html, 200)
+	}
+	
+	route_events:= fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+		nameid := req.params['name'].split('-')
+		if nameid.len < 2 {
+			res.send('404 Not Found - malformatted path', 404)
+			return
+		}
+		id := nameid[nameid.len-1]
+		
+		event := (app.get_events([id.int()]) or {
+			res.send('404 Not Found - no event', 404)
+			return
+		})[0]
+		
+		mut event_html := os.read_file('./html/event.html') or {
+			res.send('Internal Server Error', 500)
+			return
+		}
+		
+		event_html = event_html.replace('\$vex_insert_event_name', event.description)
+		event_html = event_html.replace('\$vex_insert_navbar', app.html_components['navbar'])
+		
+		res.send_html(event_html, 200)
 	}
 
 	// route_login serves the login page to the end user
@@ -424,6 +450,7 @@ fn main() {
 	router.route(.get, '/assets/*path', route_assets)
 	router.route(.get, '/calendar', route_calendar)
 	router.route(.get, '/dashboard', route_dashboard)
+	router.route(.get, '/events/*name', route_events)
 	router.route(.post, '/insert/*table', route_insert_post)
 	router.route(.get, '/login', route_login)
 	router.route(.post, '/login', route_login_post)

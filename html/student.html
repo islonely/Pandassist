@@ -9,8 +9,63 @@
         <link rel="stylesheet" href="/assets/css/main.css">
         <script src="/assets/js/tailwindcss.js"></script>
         <script src="/assets/js/jquery-3.6.0.min.js"></script>
+        <style>
+            button.tab {
+                background-color: rgb(209, 235, 252);
+                border-radius: 10px;
+                transition: all 150ms, background-color 50ms;
+            }
+            
+            button.tab:hover {
+                background-color: rgb(199, 229, 249);
+            }
+            
+            button.tab.active {
+                background-color: rgb(248 250 252);
+                border-bottom-left-radius: 0px;
+                border-bottom-right-radius: 0px;
+            }
+            
+            button.tab:not(:first-child) {
+                margin-left: 8px;
+            }
+        </style>
     </head>
-    <body>
+    <body class="bg-slate-100">
         $vex_insert_navbar
+        
+        <main class="sm:mx-12 mx-2 rounded bg-transparent">
+            <div class="flex items-stretch justify-evenly bg-transparent">
+                <button type="button" data-target="#mathPage" class="w-full h-full pt-2 pb-1 tab active">Math</button>
+                <button type="button" data-target="#readingPage" class="w-full h-full pt-2 pb-1 tab">Reading</button>
+                <button type="button" data-target="#sciencePage" class="w-full h-full pt-2 pb-1 tab">Science</button>
+                <button type="button" data-target="#spellingPage" class="w-full h-full pt-2 pb-1 tab">Spelling</button>
+                <button type="button" data-target="#spanishPage" class="w-full h-full pt-2 pb-1 tab">Spanish</button>
+            </div>
+            
+            <div id="mathPage" class="tabpage h-96 bg-slate-50 shadow-lg">
+                Math
+            </div>
+            <div id="readingPage" class="tabpage hidden h-96 bg-slate-50 shadow-lg">
+                Reading
+            </div>
+            <div id="sciencePage" class="tabpage hidden h-96 bg-slate-50 shadow-lg">
+                Science
+            </div>
+            <div id="spellingPage" class="tabpage hidden h-96 bg-slate-50 shadow-lg">
+                Spelling
+            </div>
+            <div id="spanishPage" class="tabpage hidden h-96 bg-slate-50 shadow-lg">
+                Spanish
+            </div>
+        </main>
+        <script>
+            $('button.tab').on('click', function(evt) {
+                $('button.tab').removeClass('active')
+                $(this).addClass('active')
+                $('div.tabpage').css({display: 'none'})
+                $($(this).get(0).dataset.target).css({display: 'block'})
+            })
+        </script>
     </body>
 </html>

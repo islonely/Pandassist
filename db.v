@@ -27,7 +27,8 @@ const (
 	const_mysql_error_phone_gt_max       = error('Phone number provided exceeds character limit of $const_mysql_phone_max_len .')
 
 	const_mysql_error_teacher_not_found  = error('No entry found in table `teachers` with matching id.')
-	const_mysql_error_students_not_found = error('No entries found in table `teachers` with matching ids.')
+	const_mysql_error_students_not_found = error('No entries found in table `students` with matching ids.')
+	const_mysql_error_events_not_found = error('No entries found in table `event` with matching ids.')
 )
 
 // new_connection returns a new MySQL connection to the database
@@ -79,11 +80,21 @@ fn (mut app App) get_teacher(ses session.Session) ?Teacher {
 	}
 
 	row := res.maps()[0]
+	
+	// ids of students
 	ids_str := row['students'].split(',')
 	mut ids := []int{cap: ids_str.len}
 	for i in ids_str {
 		ids << i.trim_space().int()
 	}
+	
+	// ids of events
+	evt_ids_str := row['events'].split(',')
+	mut evt_ids := []int{cap: evt_ids_str.len}
+	for i in evt_ids_str {
+		evt_ids << i.trim_space().int()
+	}
+	
 	return Teacher{
 		id: row['id'].u64()
 		username: row['username']
@@ -95,7 +106,47 @@ fn (mut app App) get_teacher(ses session.Session) ?Teacher {
 			println(err.msg())
 			[]Student{}
 		}
+		events: app.get_events(evt_ids) or {
+			println(err.msg())
+			[]Event{}
+		}
 	}
+}
+
+fn (app App) get_events(ids []int) ?[]Event {
+	mut conn := new_connection(app.config)
+	conn.connect() ?
+	defer {
+		conn.close()
+	}
+	
+	if ids.len <= 0 {
+		return none
+	}
+	
+	mut query := 'SELECT * FROM events WHERE id IN (' + ids[0].str()
+	if ids.len > 1 {
+		for i := 1; i < ids.len; i++ {
+			query += ', ' + ids[i].str()
+		}
+	}
+	query += ') ORDER BY time ASC;'
+	
+	res := conn.query(query) ?
+	if res.n_rows() == 0 {
+		return const_mysql_error_events_not_found
+	}
+	
+	mut events := []Event{cap: int(res.n_rows())}
+	for row in res.maps() {
+		events << Event{
+			id: row['id'].u64()
+			description: row['description']
+			category: row['category']
+			time: time.unix(row['time'].i64())
+		}
+	}
+	return events
 }
 
 // get_students returns an array of Student from the provided ids

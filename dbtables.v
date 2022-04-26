@@ -23,8 +23,47 @@ struct Event {
 mut:
 	id u64
 	description string
+	category string
 	time time.Time
 }
+
+// html returns the html code for an array of Event
+fn (events []Event) html() string {
+	mut str := ''
+	for event in events {
+		str += event.html()
+	}
+	return str
+}
+
+// html returns the html code for an individual Event
+fn (event Event) html() string {
+	evt_name := event.description.replace(' ', '-') + '-$event.id'
+	mut bldr := htmlbuilder.new_builder()
+	bldr.open_tag('a', {
+		'href': '/events/$evt_name'
+		'class': 'student block'
+	})
+	bldr.open_tag('h4', {
+		'class': 'pt-2 leading-tight mb-2'
+		'style': 'font-weight: bold;'
+	})
+	bldr.write_string(event.description)
+	bldr.open_tag('span', {
+		'class': 'float-right text-manjari text-sm relative'
+		'style': 'top: 5px; font-weight: normal;'
+	})
+	bldr.write_string(fmt_time(event.time))
+	bldr.close_all_tags()
+	return bldr.str()
+}
+
+// <a href="/events/field-trip" class="student block">
+    // <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold">
+        // Field Trip
+        // <span class="float-right text-manjari text-sm relative" style="top: 5px; font-weight: normal;">4-24-2022</span>
+    // </h4>
+// </a>
 
 // Teacher represents a row from the `teachers` table in the databse.
 struct Teacher {
@@ -36,6 +75,7 @@ mut:
 	phone    string
 	dob      time.Time
 	students []Student
+	events   []Event
 }
 
 // html returns the html code for an array of Student
@@ -72,4 +112,15 @@ fn (student Student) html() string {
 	bldr.write_string(student.name)
 	bldr.close_all_tags()
 	return bldr.str()
+}
+
+fn fmt_time(time time.Time) string {
+	mut str := time.smonth() + ' ' + time.day.str()
+	str += match time.day {
+		1, 21, 31 { 'st' }
+		2, 22{ 'nd' }
+		else { 'th' }
+	}
+	str += ', ' + time.year.str()
+	return str
 }
