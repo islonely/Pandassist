@@ -86,7 +86,8 @@ function createStudent() {
                     success: res => {
                         console.log(res)
                         $form.get(0).reset()
-                        showToast(res.message)
+                        showToast(res.message + ' Refreshing page...')
+                        setTimeout(() => {location.reload()}, 2000)
                     },
                     
                     error: res => {

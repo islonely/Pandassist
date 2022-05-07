@@ -4,5 +4,5 @@ port = 8080
 dbname = "pandassist"
 host = "127.0.0.1"
 port = 3306
-username = "panda"
+username = "pandassist"
 password = "p@nda$$ist"

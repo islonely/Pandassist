@@ -170,6 +170,7 @@ $(document).ready(function() {
             }),
             
             success: function(response) {
+				showToast(response.message)
                 if (!response.error) {
                     window.location.replace('/dashboard')
                 }

@@ -43,9 +43,62 @@ fn new_connection(config toml.Doc) mysql.Connection {
 	}
 }
 
+// register_user validates the fields provided in `data`. If
+// everything checks out, then user information is inserted
+// into database.
+fn (app &App) register_user(data map[string]string) ? {
+	mut conn := new_connection(app.config)
+	conn.connect() ?
+	defer {
+		conn.close()
+	}
+
+	// see db.v for values of const's
+	if data['username'].len > const_mysql_username_max_len {
+		return const_mysql_error_username_gt_max
+	}
+	if data['name'].len > const_mysql_name_max_len {
+		return const_mysql_error_name_gt_max
+	}
+	if data['email'].len > const_mysql_email_max_len {
+		return const_mysql_error_email_gt_max
+	}
+	if data['password'].len > const_mysql_password_max_len {
+		return const_mysql_error_password_gt_max
+	}
+	if data['phone'].len > const_mysql_phone_max_len {
+		return const_mysql_error_phone_gt_max
+	}
+
+	// Check if username is taken. Two people cannot possibly
+	// be in possession of the same username.
+	query_username_taken := "SELECT * FROM teachers WHERE username='" + data['username'] + "';"
+	result_username_taken := conn.query(query_username_taken) ?
+	if result_username_taken.n_rows() > 0 {
+		return const_mysql_error_username_taken
+	}
+
+	// Check if email is taken.
+	query_email_taken := "SELECT * FROM teachers WHERE email='" + data['email'] + "';"
+	result_email_taken := conn.query(query_email_taken) ?
+	if result_email_taken.n_rows() > 0 {
+		return const_mysql_error_email_taken
+	}
+
+	dob := time.sys_mono_now()
+	query_insert :=
+		"INSERT INTO teachers (username, name, email, password, phone, dob) VALUES ('" +
+		data['username'] + "', '" + data['name'] + "', '" + data['email'] + "', '" +
+		data['password'] + "', '" + data['phone'] + "', " + dob.str() + ');'
+	result_insert := conn.query(query_insert) ?
+	if conn.affected_rows() == 0 {
+		return error('Failed to insert user into database. ' + result_insert.str())
+	}
+}
+
 // get_id_from_email connects to the database and fetches the id
 // of the row with the provided email
-fn (mut app App) get_id_from_email(email string) ?int {
+fn (app &App) get_id_from_email(email string) ?int {
 	mut conn := new_connection(app.config)
 	conn.connect() ?
 	// closing the database is causing a RUNITIME ERROR: abort()
@@ -61,7 +114,7 @@ fn (mut app App) get_id_from_email(email string) ?int {
 }
 
 // get_teacher creates a Teacher object from the provided id
-fn (mut app App) get_teacher(ses session.Session) ?Teacher {
+fn (app &App) get_teacher(ses session.Session) ?Teacher {
 	mut id := ses.get('id').int()
 	if id == 0 {
 		id = app.get_id_from_email(ses.get('email')) ?
@@ -113,7 +166,7 @@ fn (mut app App) get_teacher(ses session.Session) ?Teacher {
 	}
 }
 
-fn (app App) get_events(ids []int) ?[]Event {
+fn (app &App) get_events(ids []int) ?[]Event {
 	mut conn := new_connection(app.config)
 	conn.connect() ?
 	defer {
@@ -150,7 +203,7 @@ fn (app App) get_events(ids []int) ?[]Event {
 }
 
 // get_students returns an array of Student from the provided ids
-fn (mut app App) get_students(ids []int) ?[]Student {
+fn (app &App) get_students(ids []int) ?[]Student {
 	mut conn := new_connection(app.config)
 	conn.connect() ?
 	defer {

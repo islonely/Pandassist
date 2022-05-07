@@ -10,7 +10,6 @@ import nedpals.vex.session
 import os
 import rand
 import crypto.sha1
-import time
 import toml
 
 
@@ -52,7 +51,7 @@ fn main() {
 		res.send_file('./assets/' + req.params['path'], 200)
 	}
 
-	route_calendar := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+	route_calendar := fn [app] (req &ctx.Req, mut res ctx.Resp) {
 		mut ses := session.start(req, mut res, secure: true)
 		if !ses.has('email') {
 			res.redirect('/login')
@@ -85,7 +84,7 @@ fn main() {
 		res.send_html(calendar_html, 200)
 	}
 
-	route_dashboard := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+	route_dashboard := fn [app] (req &ctx.Req, mut res ctx.Resp) {
 		mut ses := session.start(req, mut res, secure: true)
 		if !ses.has('email') {
 			res.redirect('/login')
@@ -110,7 +109,7 @@ fn main() {
 		res.send_html(dashboard_html, 200)
 	}
 	
-	route_events:= fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+	route_events:= fn [app] (req &ctx.Req, mut res ctx.Resp) {
 		nameid := req.params['name'].split('-')
 		if nameid.len < 2 {
 			res.send('404 Not Found - malformatted path', 404)
@@ -147,7 +146,7 @@ fn main() {
 	// route_login_post handles post request made to the login
 	// route. This will either be a request to login or to
 	// register a new user.
-	route_login_post := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+	route_login_post := fn [app] (req &ctx.Req, mut res ctx.Resp) {
 		mut data := req.parse_form() or {
 			res.send_json(JsonResponse{
 				error: true
@@ -242,7 +241,7 @@ fn main() {
 					return
 				}
 
-				register_user(mut app, data) or {
+				app.register_user(data) or {
 					res.send_json(JsonResponse{
 						error: true
 						message: 'Failed to insert new user into database: $err.msg()'
@@ -270,7 +269,7 @@ fn main() {
 		res.redirect('/dashboard')
 	}
 	
-	route_students := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+	route_students := fn [app] (req &ctx.Req, mut res ctx.Resp) {
 		nameid := req.params['name'].split('-')
 		if nameid.len < 2 {
 			res.send('404 Not Found - malformatted path', 404)
@@ -294,7 +293,7 @@ fn main() {
 		res.send_html(student_html, 200)
 	}
 	
-	route_insert_post := fn [mut app] (req &ctx.Req, mut res ctx.Resp) {
+	route_insert_post := fn [app] (req &ctx.Req, mut res ctx.Resp) {
 		mut data := req.parse_form() or {
 			res.send_json(JsonResponse{
 				error: true
@@ -385,7 +384,7 @@ fn main() {
 		}
 	}
 	
-	route_upload_post := fn [mut app] (req &ctx.Req, mut res &ctx.Resp) {
+	route_upload_post := fn (req &ctx.Req, mut res &ctx.Resp) {
 		data := req.parse_files() or {
 			res.send_json(JsonResponse{
 				error: true
@@ -459,59 +458,6 @@ fn main() {
 	router.route(.post, '/upload/*type', route_upload_post)
 
 	server.serve(router, app.config.value('port').default_to('8080').int())
-}
-
-// register_user validates the fields provided in `data`. If
-// everything checks out, then user information is inserted
-// into database.
-fn register_user(mut app App, data map[string]string) ? {
-	mut conn := new_connection(app.config)
-	conn.connect() ?
-	defer {
-		conn.close()
-	}
-
-	// see db.v for values of const's
-	if data['username'].len > const_mysql_username_max_len {
-		return const_mysql_error_username_gt_max
-	}
-	if data['name'].len > const_mysql_name_max_len {
-		return const_mysql_error_name_gt_max
-	}
-	if data['email'].len > const_mysql_email_max_len {
-		return const_mysql_error_email_gt_max
-	}
-	if data['password'].len > const_mysql_password_max_len {
-		return const_mysql_error_password_gt_max
-	}
-	if data['phone'].len > const_mysql_phone_max_len {
-		return const_mysql_error_phone_gt_max
-	}
-
-	// Check if username is taken. Two people cannot possibly
-	// be in possession of the same username.
-	query_username_taken := "SELECT * FROM teachers WHERE username='" + data['username'] + "';"
-	result_username_taken := conn.query(query_username_taken) ?
-	if result_username_taken.n_rows() > 0 {
-		return const_mysql_error_username_taken
-	}
-
-	// Check if email is taken.
-	query_email_taken := "SELECT * FROM teachers WHERE email='" + data['email'] + "';"
-	result_email_taken := conn.query(query_email_taken) ?
-	if result_email_taken.n_rows() > 0 {
-		return const_mysql_error_email_taken
-	}
-
-	account_birth := time.sys_mono_now()
-	query_insert :=
-		"INSERT INTO teachers (username, full_name, email, password, account_birth) VALUES ('" +
-		data['username'] + "', '" + data['name'] + "', '" + data['email'] + "', '" +
-		data['password'] + "', " + account_birth.str() + ');'
-	result_insert := conn.query(query_insert) ?
-	if conn.affected_rows() == 0 {
-		return error('Failed to insert user into database. ' + result_insert.str())
-	}
 }
 
 // God's Word does not return void
