@@ -1,27 +1,27 @@
-$(document).ready(function() {
+$(document).ready(function () {
     window.selectedStudents = []
 
-    $('.student').on('click', function(evt) {
+    $('.student').on('click', function (evt) {
         evt.stopPropagation()
-        $(this).css({background: '#c8daf5ad'})
+        $(this).css({ background: '#c8daf5ad' })
         window.selectedStudents += this
     })
-    
+
     $(window).on('click', windowClick)
 })
 
 function windowClick(evt) {
     $('#profileMenu').fadeOut(60)
     $('#backdrop').fadeOut(60)
-    
-    $('.student').css({background: 'white'})
+
+    $('.student').css({ background: 'white' })
     window.selectedStudents = []
 
     closePopups()
 }
 
-function closePopups(ignore=null) {
-    let popupIds = ['#newEventPopup', '#newStudentPopup']
+function closePopups(ignore = null) {
+    let popupIds = ['#newEventPopup', '#newStudentPopup', '#addSubjectPopup']
     if (ignore != null)
         if (popupIds.indexOf(ignore) >= 0)
             delete popupIds[popupIds.indexOf(ignore)]
@@ -34,7 +34,7 @@ function closePopups(ignore=null) {
 function showPopup(qsel, evt) {
     if (qsel === undefined || qsel === null)
         return false
-    
+
     evt.stopPropagation()
     closePopups()
     $('#backdrop').fadeIn(60)
@@ -50,10 +50,10 @@ function showToast(msg) {
     $toast.find('p').text(msg)
     $toast.css({
         left: '50%',
-        marginLeft: (-1 * $toast.width()/2 - 32) + 'px'
+        marginLeft: (-1 * $toast.width() / 2 - 32) + 'px'
     })
     $toast.addClass('toast')
-    setTimeout(function(){
+    setTimeout(function () {
         $toast.removeClass('toast')
     }, 3300)
 }
@@ -63,12 +63,12 @@ function getSchoolYear() {
     let y = d.getFullYear()
     let m = d.getMonth()
     if (m >= 7 /* August */) {
-        return y + '-' + (y+1)
+        return y + '-' + (y + 1)
     } else {
-        return (y-1) + '-' + y
+        return (y - 1) + '-' + y
     }
 }
 
-async function sleep(ms=0) {
+async function sleep(ms = 0) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

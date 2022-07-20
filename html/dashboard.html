@@ -1,39 +1,42 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dashbaord - Pandassist</title>
-        
-        <link rel="stylesheet" href="/assets/css/main.css">
-        <script src="/assets/js/tailwindcss.js"></script>
-        <script src="/assets/js/jquery-3.6.0.min.js"></script>
-        <script src="/assets/js/main.js"></script>
-        <script src="/assets/js/dashboard.js"></script>
-    </head>
-    <body class="bg-slate-100">
-        $vex_insert_navbar
-        <script>
-            $($('a[href="/dashboard"]')[0]).attr('class', 'bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium')
-            $($('a[href="/dashboard"]')[1]).attr('class', 'bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium')
-        </script>
-        
-        <style>
-            @media screen and (max-width: 720px) {
-                #mainContainer {
-                    flex-direction: column;
-                }
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashbaord - Pandassist</title>
+
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <script src="/assets/js/tailwindcss.js"></script>
+    <script src="/assets/js/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard.js"></script>
+</head>
+
+<body class="bg-slate-100">
+    $vex_insert_navbar
+    <script>
+        $($('a[href="/dashboard"]')[0]).attr('class', 'bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium')
+        $($('a[href="/dashboard"]')[1]).attr('class', 'bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium')
+    </script>
+
+    <style>
+        @media screen and (max-width: 720px) {
+            #mainContainer {
+                flex-direction: column;
             }
-        </style>
-        <div id="mainContainer" class="container w-max mx-auto flex flex-wrap justify-around items-start">
-            <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-96 w-80" style="margin: 8px !important;">
-                <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg" onclick="showPopup('#newEventPopup', event)">
-                    <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Events</h2>
-                </header>
-                <div class="h-80 overflow-x-auto">
-                    $vex_insert_events
-                    <!-- <a href="/events/field-trip" class="student block">
+        }
+    </style>
+    <div id="mainContainer" class="container w-max mx-auto flex flex-wrap justify-around items-start">
+        <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-96 w-80" style="margin: 8px !important;">
+            <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
+                <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg"
+                    onclick="showPopup('#newEventPopup', event)">
+                <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Events</h2>
+            </header>
+            <div class="h-80 overflow-x-auto">
+                $vex_insert_events
+                <!-- <a href="/events/field-trip" class="student block">
                         <h4 class="pt-2 leading-tight mb-2" style="font-weight: bold">
                             Field Trip
                             <span class="float-right text-manjari text-sm relative" style="top: 5px; font-weight: normal;">4-24-2022</span>
@@ -45,99 +48,126 @@
                             <span class="float-right text-manjari text-sm relative" style="top: 5px; font-weight: normal;">May 1st, 2022</span>
                         </h4>
                     </a> -->
-                </div>
             </div>
+        </div>
 
-            <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-96 w-80 relative" style="margin: 8px !important;">
-                <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
-                    <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg" onclick="showPopup('#newStudentPopup', event)">
-                    <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Students</h2>
-                </header>
-                <div class="h-80 overflow-x-auto" id="studentsContainer">
-                    $vex_insert_students
-                </div>
+        <div class="rounded-lg shadow-lg bg-white max-w-md sm:w-96 w-80 relative" style="margin: 8px !important;">
+            <header class="border-b-2 border-slate-300 px-2 pt-2 text-slate-600 text-josefin">
+                <img class="float-right cursor-pointer h-7" src="/assets/img/add.svg"
+                    onclick="showPopup('#newStudentPopup', event)">
+                <h2 style="font-size: 1.35rem; letter-spacing: -0.065rem;">Students</h2>
+            </header>
+            <div class="h-80 overflow-x-auto" id="studentsContainer">
+                $vex_insert_students
             </div>
         </div>
-        
-        <div class="spinner text-sm text-quicksand fixed bottom-3 text-center align-middle bg-slate-700 rounded-full text-white w-12 h-12">
-            <div class="flex justify-center items-stretch h-12">
-                <div id="uploadPercent" class="self-center table-cell align-middle">0</div>
-            </div>
-            <div class="spinner border-slate-700 border-t-sky-500 rounded-full w-12 h-12 fixed bottom-3" style="right: -100px; border-width: 6px; animation: spin 2s ease-in-out infinite;"></div>
+    </div>
+
+    <div
+        class="spinner text-sm text-quicksand fixed bottom-3 text-center align-middle bg-slate-700 rounded-full text-white w-12 h-12">
+        <div class="flex justify-center items-stretch h-12">
+            <div id="uploadPercent" class="self-center table-cell align-middle">0</div>
         </div>
-        
-        <div id="backdrop" class="inset-0 fixed bg-slate-900 opacity-70 hidden" onclick="windowClick(event)">&nbsp;</div>
-        
-        <!-- CREATE EVENT POPUP -->
-        <div id="newEventPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md border-gray-100 border-2 md:w-4/12 w-5/6 inset-0 m-auto h-fit" onclick="event.stopPropagation();">
-            <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="windowClick(event)">
-            <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Student</h2>
-            <div class="text-lg">
-                <div class="my-2 flex">
-                    <label for="eventDesc" class="flex items-center justify-center mr-2 relative top-0.5">
-                        <span>Description:</span>
-                    </label>
-                    <input id="eventDesc" class="w-full sm:text-base text-sm rounded px-2 pt-2 pb-1 bg-slate-100 hover:bg-slate-200" value="John Smith" onclick="if (this.value == 'John Smith') this.value = '';">
-                </div>
-                <div class="my-2 flex">
-                    <label for="eventCategory" class="flex items-center justify-center mr-6 relative top-0.5">
-                        <span>Category:</span>
-                    </label>
-                    <select id="eventCategory" class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded pl-2 pt-3 pb-2 hover:bg-slate-200" onchange="if ($(this).val() == '-1') { $('#addCategoryName').removeClass('hidden'); } else { $('#addCategoryName').addClass('hidden'); }">
-                        <option value="-1">Add Category +</option>
-                        <option value="0">Field Trip</option>
-                        <option value="1">Special</option>
-                        <option value="2">Test/Exam</option>
-                        <option value="3" selected>Other</option>
-                    </select>
-                    <input id="addCategoryName" class="hidden ml-2 w-full sm:text-base text-sm rounded px-2 pt-2 pb-1 bg-slate-100 hover:bg-slate-200">
-                </div>
-                <div class="my-2 flex">
-                    <label for="eventDatetime" class="flex items-center justify-center relative top-0.5" style="margin-right: 3.75rem;">
-                        <span>Date:</span>
-                    </label>
-                    <input id="eventDatetime" type="datetime-local" class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded px-2 pt-2 pb-1 hover:bg-slate-200">
-                </div>
+        <div class="spinner border-slate-700 border-t-sky-500 rounded-full w-12 h-12 fixed bottom-3"
+            style="right: -100px; border-width: 6px; animation: spin 2s ease-in-out infinite;"></div>
+    </div>
+
+    <div id="backdrop" class="inset-0 fixed bg-slate-900 opacity-70 hidden" onclick="windowClick(event)">&nbsp;</div>
+
+    <!-- CREATE EVENT POPUP -->
+    <div id="newEventPopup"
+        class="fixed hidden shadow-md p-4 bg-white rounded-md border-gray-100 border-2 md:w-4/12 w-5/6 inset-0 m-auto h-fit"
+        onclick="event.stopPropagation();">
+        <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="windowClick(event)">
+        <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Event</h2>
+        <div class="text-lg">
+            <div class="my-2 flex">
+                <label for="eventDesc" class="flex items-center justify-center mr-2">
+                    <span>Description:</span>
+                </label>
+                <input id="eventDesc"
+                    class="w-full sm:text-base text-sm rounded px-2 py-1 bg-slate-100 hover:bg-slate-200"
+                    value="Trip to Willy Wonka factory"
+                    onclick="if (this.value == 'Trip to Willy Wonka factory') this.value = '';">
             </div>
-            <br>
-            <div class="mx-auto text-center flex justify-evenly">
-                <button id="eventCreateBttn" class="w-full mr-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="createEvent()">Create</button>
-                <button id="eventCancelBttn" class="w-full ml-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="windowClick(event)">Cancel</button>
+            <div class="my-2 flex">
+                <label for="eventCategory" class="flex items-center justify-center mr-7">
+                    <span>Category:</span>
+                </label>
+                <select id="eventCategory"
+                    class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded pl-2 py-1 hover:bg-slate-200"
+                    onchange="if ($(this).val() == '-1') { $('#addCategoryName').removeClass('hidden'); } else { $('#addCategoryName').addClass('hidden'); }">
+                    <option value="-1">Add Category +</option>
+                    <option value="0">Field Trip</option>
+                    <option value="1">Special</option>
+                    <option value="2">Test/Exam</option>
+                    <option value="3" selected>Other</option>
+                </select>
+                <input id="addCategoryName"
+                    class="hidden ml-2 w-full sm:text-base text-sm rounded px-2 py-1 bg-slate-100 hover:bg-slate-200">
+            </div>
+            <div class="my-2 flex">
+                <label for="eventDatetime" class="flex items-center justify-center" style="margin-right: 4rem;">
+                    <span>Date:</span>
+                </label>
+                <input id="eventDatetime" type="datetime-local"
+                    class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded px-2 pt-2 pb-1 hover:bg-slate-200">
             </div>
         </div>
-        
-        <!-- CREATE STUDENT POPUP -->
-        <form action="#" id="newStudentPopup" class="fixed hidden shadow-md p-4 bg-white rounded-md border-gray-100 border-2 md:w-4/12 w-5/6 inset-0 m-auto h-fit" onclick="event.stopPropagation();">
-            <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="windowClick(event)">
-            <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Student</h2>
-            <div class="text-lg">
-                <div class="my-2 flex">
-                    <label for="studentName" class="flex items-center justify-center mr-5 relative top-0.5">
-                        <span>Name:</span>
-                    </label>
-                    <input id="studentName" class="w-full sm:text-base text-sm rounded px-2 pt-2 pb-1 bg-slate-100 hover:bg-slate-200" value="John Smith" onclick="if (this.value == 'John Smith') this.value = '';">
-                </div>
-                <div class="my-2 flex">
-                    <label for="studentGender" class="flex items-center justify-center mr-2 relative top-0.5">
-                        <span>Gender:</span>
-                    </label>
-                    <select id="studentGender" class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded pl-2 pt-2 pb-1 hover:bg-slate-200">
-                        <option value="0">Male</option>
-                        <option value="1" selected>Female</option>
-                    </select>
-                </div>
-                <div class="my-2 flex">
-                    <label for="studentAvatar" class="flex items-center justify-center mr-3 relative top-0.5">
-                        <span>Avatar:</span>
-                    </label>
-                    <input id="studentAvatar" type="file" accept=".jpg,.png,.qoif" class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded px-2 py-1 hover:bg-slate-200">
-                </div>
+        <br>
+        <div class="mx-auto text-center flex justify-evenly">
+            <button id="eventCreateBttn"
+                class="w-full mr-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200"
+                onclick="createEvent()">Create</button>
+            <button id="eventCancelBttn"
+                class="w-full ml-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200"
+                onclick="windowClick(event)">Cancel</button>
+        </div>
+    </div>
+
+    <!-- CREATE STUDENT POPUP -->
+    <form action="#" id="newStudentPopup"
+        class="fixed hidden shadow-md p-4 bg-white rounded-md border-gray-100 border-2 md:w-4/12 w-5/6 inset-0 m-auto h-fit"
+        onclick="event.stopPropagation();">
+        <img class="float-right cursor-pointer h-10 rotate-45" src="/assets/img/add.svg" onclick="windowClick(event)">
+        <h2 class="text-josefin" style="font-size: 1.75rem; letter-spacing: -0.075rem;">New Student</h2>
+        <div class="text-lg">
+            <div class="my-2 flex">
+                <label for="studentName" class="flex items-center justify-center mr-5 relative top-0.5">
+                    <span>Name:</span>
+                </label>
+                <input id="studentName"
+                    class="w-full sm:text-base text-sm rounded px-2 pt-2 pb-1 bg-slate-100 hover:bg-slate-200"
+                    value="John Smith" onclick="if (this.value == 'John Smith') this.value = '';">
             </div>
-            <br>
-            <div class="mx-auto text-center flex justify-evenly">
-                <button type="button" id="studentCreateBttn" class="w-full mr-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="createStudent()">Create</button>
-                <button type="button" id="studentCancelBttn" class="w-full ml-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200" onclick="windowClick(event)">Cancel</button>
+            <div class="my-2 flex">
+                <label for="studentGender" class="flex items-center justify-center mr-2 relative top-0.5">
+                    <span>Gender:</span>
+                </label>
+                <select id="studentGender"
+                    class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded pl-2 pt-2 pb-1 hover:bg-slate-200">
+                    <option value="0">Male</option>
+                    <option value="1" selected>Female</option>
+                </select>
             </div>
-        </form>
-    </body>
+            <div class="my-2 flex">
+                <label for="studentAvatar" class="flex items-center justify-center mr-3 relative top-0.5">
+                    <span>Avatar:</span>
+                </label>
+                <input id="studentAvatar" type="file" accept=".jpg,.png,.qoif"
+                    class="w-full cursor-pointer sm:text-base text-sm bg-slate-100 rounded px-2 py-1 hover:bg-slate-200">
+            </div>
+        </div>
+        <br>
+        <div class="mx-auto text-center flex justify-evenly">
+            <button type="button" id="studentCreateBttn"
+                class="w-full mr-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200"
+                onclick="createStudent()">Create</button>
+            <button type="button" id="studentCancelBttn"
+                class="w-full ml-2 text-base bg-slate-100 rounded px-2 pt-2 pb-1 w-5/12 hover:bg-slate-200"
+                onclick="windowClick(event)">Cancel</button>
+        </div>
+    </form>
+</body>
+
 </html>

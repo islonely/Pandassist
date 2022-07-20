@@ -1,84 +1,94 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dashbaord - Pandassist</title>
-        
-        <link rel="stylesheet" href="../assets/css/main.css">
-        <script src="../assets/js/tailwindcss.js"></script>
-        <script src="../assets/js/jquery-3.6.0.min.js"></script>
-        <script src="../assets/js/main.js"></script>
-        <script src="../assets/js/calendar.js"></script>
-    </head>
-    <body class="bg-slate-100 h-screen">
-        $vex_insert_navbar
-        <script>
-            $($('a[href="/calendar"]')[0]).attr('class', 'bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium')
-            $($('a[href="/calendar"]')[1]).attr('class', 'bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium')
-        </script>
-    
-        <div class="p-8 max-w-5xl mx-auto h-5/6 border-b-2">
-            <div class="relative flex justify-between text-center text-2xl bg-white rounded-t-md shadow-lg border-b-2 border-gray-200 pt-2 pb-2">
-                <div class="absolute left-4 sm:block hidden cursor-pointer" onclick="setCalendar(prevMonthDate())">&lt;</div>
-                <div class="absolute right-4 sm:block hidden cursor-pointer" onclick="setCalendar(nextMonthDate())">&gt;</div>
-                <div id="monthLabel" class="text-center w-full">April</div>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashbaord - Pandassist</title>
+
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <script src="../assets/js/tailwindcss.js"></script>
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/calendar.js"></script>
+</head>
+
+<body class="bg-slate-100 h-screen">
+    $vex_insert_navbar
+    <script>
+        $($('a[href="/calendar"]')[0]).attr('class', 'bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium')
+        $($('a[href="/calendar"]')[1]).attr('class', 'bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium')
+    </script>
+
+    <div class="p-8 max-w-5xl mx-auto h-5/6 border-b-2">
+        <div
+            class="relative flex justify-between text-center text-2xl bg-white rounded-t-md shadow-lg border-b-2 border-gray-200 pt-2 pb-2">
+            <div class="absolute left-4 sm:block hidden cursor-pointer" onclick="setCalendar(prevMonthDate())">&lt;
             </div>
-            <div class="relative flex items-center justify-between bg-white shadow-lg border-b-2 border-gray-200 text-lg">
-                <div class="text-center w-full mt-1 mb-1">Sun</div>
-                <div class="text-center w-full mt-1 mb-1">Mon</div>
-                <div class="text-center w-full mt-1 mb-1">Tue</div>
-                <div class="text-center w-full mt-1 mb-1">Wed</div>
-                <div class="text-center w-full mt-1 mb-1">Thu</div>
-                <div class="text-center w-full mt-1 mb-1">Fri</div>
-                <div class="text-center w-full mt-1 mb-1">Sat</div>
+            <div class="absolute right-4 sm:block hidden cursor-pointer" onclick="setCalendar(nextMonthDate())">&gt;
             </div>
-            <div class="relative grid grid-cols-7 grid-rows-5 gap-px bg-gray-200 h-2/3 sm:h-5/6 shadow-lg">
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="bg-white day-cell"></div>
-                <div class="absolute inset-0 grid grid-cols-7 grid-rows-5">
-                    <div class="col-start-3 col-end-8 row-start-3 flex items-end p-1">
-                        <div class="sm:h-9 sm:p-2 sm:text-sm h-6 text-xs px-2 py-1 bg-sky-100 text-slate-600 rounded w-full">Vacation days</div>
-                    </div>
-                    <div class="col-start-1 col-end-3 row-start-4 flex items-end p-1">
-                        <div class="sm:h-9 sm:p-2 sm:text-sm h-6 text-xs px-2 py-1 bg-sky-100 text-slate-600 rounded w-full"></div>
+            <div id="monthLabel" class="text-center w-full">April</div>
+        </div>
+        <div class="relative flex items-center justify-between bg-white shadow-lg border-b-2 border-gray-200 text-lg">
+            <div class="text-center w-full mt-1 mb-1">Sun</div>
+            <div class="text-center w-full mt-1 mb-1">Mon</div>
+            <div class="text-center w-full mt-1 mb-1">Tue</div>
+            <div class="text-center w-full mt-1 mb-1">Wed</div>
+            <div class="text-center w-full mt-1 mb-1">Thu</div>
+            <div class="text-center w-full mt-1 mb-1">Fri</div>
+            <div class="text-center w-full mt-1 mb-1">Sat</div>
+        </div>
+        <div class="relative grid grid-cols-7 grid-rows-5 gap-px bg-gray-200 h-2/3 sm:h-5/6 shadow-lg">
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="bg-white day-cell"></div>
+            <div class="absolute inset-0 grid grid-cols-7 grid-rows-5">
+                <div class="col-start-3 col-end-8 row-start-3 flex items-end p-1">
+                    <div
+                        class="sm:h-9 sm:p-2 sm:text-sm h-6 text-xs px-2 py-1 bg-sky-100 text-slate-600 rounded w-full">
+                        Vacation days</div>
+                </div>
+                <div class="col-start-1 col-end-3 row-start-4 flex items-end p-1">
+                    <div
+                        class="sm:h-9 sm:p-2 sm:text-sm h-6 text-xs px-2 py-1 bg-sky-100 text-slate-600 rounded w-full">
                     </div>
                 </div>
             </div>
         </div>
-        <!-- <script>initCalendar()</script> -->
-    </body>
+    </div>
+    <!-- <script>initCalendar()</script> -->
+</body>
+
 </html>
