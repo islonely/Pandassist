@@ -1,6 +1,6 @@
 module main
 
-import mysql
+import db.mysql
 import nedpals.vex.session
 import time
 import toml
@@ -232,7 +232,7 @@ fn (app &App) get_students(ids []int) ?[]Student {
 		students << Student{
 			id: row['id'].u64()
 			name: row['name']
-			gender: Gender(row['gender'].int())
+			gender: unsafe { Gender(row['gender'].int()) }
 			avatar_path: row['avatar_path']
 		}
 	}

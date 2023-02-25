@@ -114,13 +114,13 @@ fn (student Student) html() string {
 	return bldr.str()
 }
 
-fn fmt_time(time time.Time) string {
-	mut str := time.smonth() + ' ' + time.day.str()
-	str += match time.day {
+fn fmt_time(t time.Time) string {
+	mut str := t.smonth() + ' ' + t.day.str()
+	str += match t.day {
 		1, 21, 31 { 'st' }
 		2, 22{ 'nd' }
 		else { 'th' }
 	}
-	str += ', ' + time.year.str()
+	str += ', ' + t.year.str()
 	return str
 }

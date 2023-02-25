@@ -260,7 +260,7 @@ pub fn (mut hb HTMLBuilder) write_ptr(ptr byteptr, len int) {
 // }
 
 // write implements the Writer interface.
-pub fn (mut hb HTMLBuilder) write(data []byte) ?int {
+pub fn (mut hb HTMLBuilder) write(data []byte) !int {
 	hb.sb.write_string('\t'.repeat(hb.indent_level))
 	return hb.sb.write(data)
 }

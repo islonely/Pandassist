@@ -307,17 +307,17 @@ fn main() {
 		match req.params['table'] {
 			'students' {
 				if ('name' in data) && ('gender' in data) {
-				    if data['name'].len == 0 ||
-				       data['gender'].len == 0 {
-				        res.send_json(JsonResponse{
-				            error: true
-				            message: 'Error: Inserting new student expects that length of name and gender be greater than zero.'
-				        }, 200)
-				        return
-				    }
+					if data['name'].len == 0 ||
+						data['gender'].len == 0 {
+						res.send_json(JsonResponse{
+							error: true
+							message: 'Error: Inserting new student expects that length of name and gender be greater than zero.'
+						}, 200)
+						return
+					}
 					mut student := Student{
 						name: data['name']
-						gender: Gender(data['gender'].int())
+						gender: unsafe { Gender(data['gender'].int()) }
 					}
 					student.avatar_path = if 'avatar_path' in data { data['avatar_path'] } else { if student.gender == .male { '/assets/img/students/profile-default-male.png' } else { '/assets/img/students/profile-default-female.png' } }
 					mut conn := new_connection(app.config)
@@ -444,20 +444,20 @@ fn main() {
 		}
 	}
 
-	mut router := router.new()
+	mut r := router.new()
 	// alphabetized
-	router.route(.get, '/assets/*path', route_assets)
-	router.route(.get, '/calendar', route_calendar)
-	router.route(.get, '/dashboard', route_dashboard)
-	router.route(.get, '/events/*name', route_events)
-	router.route(.post, '/insert/*table', route_insert_post)
-	router.route(.get, '/login', route_login)
-	router.route(.post, '/login', route_login_post)
-	router.route(.get, '/logout', route_logout)
-	router.route(.get, '/students/*name', route_students)
-	router.route(.post, '/upload/*type', route_upload_post)
+	r.route(.get, '/assets/*path', route_assets)
+	r.route(.get, '/calendar', route_calendar)
+	r.route(.get, '/dashboard', route_dashboard)
+	r.route(.get, '/events/*name', route_events)
+	r.route(.post, '/insert/*table', route_insert_post)
+	r.route(.get, '/login', route_login)
+	r.route(.post, '/login', route_login_post)
+	r.route(.get, '/logout', route_logout)
+	r.route(.get, '/students/*name', route_students)
+	r.route(.post, '/upload/*type', route_upload_post)
 
-	server.serve(router, app.config.value('port').default_to('8080').int())
+	server.serve(r, app.config.value('port').default_to('8080').int())
 }
 
 // God's Word does not return void
