@@ -1,6 +1,6 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
-    
+
 })
 
 function createEvent() {
@@ -25,12 +25,12 @@ function createStudent() {
     } else {
         filepath = null
     }
-    
+
     if (name.length == 0) {
         showToast('Student name must contain alphanumeric characters.')
         return false
     }
-    
+
     let formData = new FormData()
     formData.append('file', avatar)
     $.ajax({
@@ -40,32 +40,32 @@ function createStudent() {
         cache: false,
         contentType: false,
         processData: false,
-        
-        xhr: function() {
+
+        xhr: function () {
             let xhr = new XMLHttpRequest()
-            
-            xhr.upload.addEventListener('progress', function(evt) {
+
+            xhr.upload.addEventListener('progress', function (evt) {
                 let x = $('#uploadPercent')
                 if (evt.lengthComputable) {
-                    $('.spinner').css({right: '12px'})
+                    $('.spinner').css({ right: '12px' })
                     let percentComplete = parseInt(evt.loaded / evt.total * 100)
-                    window.uploadPercent = setInterval(() => { 
+                    window.uploadPercent = setInterval(() => {
                         if (parseInt(x.text()) < percentComplete) {
                             x.text(parseInt(x.text()) + 1)
                         }
                     }, 10)
-                    
+
                     if (percentComplete == 100) {
-                        setTimeout(function() {
+                        setTimeout(function () {
                             clearInterval(window.uploadPercent)
-                            $('.spinner').css({right: '-100px'})
+                            $('.spinner').css({ right: '-100px' })
                         }, 2000)
                     }
                 }
             }, false)
             return xhr
         },
-        
+
         success: res => {
             console.log(res)
             if (res.error) {
@@ -82,26 +82,26 @@ function createStudent() {
                     }),
                     dataType: 'json',
                     contentType: 'application/json',
-                    
+
                     success: res => {
                         console.log(res)
                         $form.get(0).reset()
                         showToast(res.message + ' Refreshing page...')
-                        setTimeout(() => {location.reload()}, 2000)
+                        setTimeout(() => { location.reload() }, 1000)
                     },
-                    
+
                     error: res => {
                         console.error(res)
-                        
+
                     }
                 })
             }
         },
-        
+
         error: res => {
             console.error(res)
         }
     })
-    
+
     $(window).click()
 }
